@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: finbridge-investments
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+```
+
+3. Save as: `render.yaml` (Save as type: **All Files**)
+4. Save location: Your project folder (`C:\Users\ACER\Downloads\Finance-Project-main\Finance-project-main`)
+
+### C) Check if you have `gunicorn` in requirements.txt
+
+1. Open `requirements.txt` with Notepad
+2. Look for a line that says `gunicorn`
+3. If it's NOT there, add this line at the end:
+```
+gunicorn==21.2.0
