@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Market Overview{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <h1>Market Overview</h1>
+        <p class="text-muted">Real-time market data and stock performance</p>
+    </div>
+
+    <!-- Market Selector -->
+    <div class="d-flex gap-2 mb-4">
+        <button class="btn btn-primary market-btn active" data-market="NYSE">NYSE</button>
+        <button class="btn btn-outline-primary market-btn" data-market="PSX">PSX</button>
+    </div>
+
+    <!-- Market Stats Cards -->
+    <div class="row g-3 mb-4" id="marketStats">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Total Stocks</div>
+                    <div class="stat-value" id="totalStocks">--</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Gainers</div>
+                    <div class="stat-value text-success" id="totalGainers">--</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Losers</div>
+                    <div class="stat-value text-danger" id="totalLosers">--</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="stat-label">Market Sentiment</div>
+                    <div class="stat-value" id="marketSentiment">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sectors -->
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Sector Performance</h5></div>
+        <div class="card-body">
+            <div id="sectorChart" style="height:300px;"></div>
+        </div>
+    </div>
+
+    <!-- Market Tables -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success bg-opacity-10">
+                    <h5 class="mb-0 text-success"><i class="fas fa-arrow-up me-2"></i>Top Gainers</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead><tr><th>Symbol</th><th class="text-end">Price</th><th class="text-end">Change</th></tr></thead>
+                        <tbody id="mkGainers"><tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-danger bg-opacity-10">
+                    <h5 class="mb-0 text-danger"><i class="fas fa-arrow-down me-2"></i>Top Losers</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead><tr><th>Symbol</th><th class="text-end">Price</th><th class="text-end">Change</th></tr></thead>
+                        <tbody id="mkLosers"><tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning bg-opacity-10">
+                    <h5 class="mb-0 text-warning"><i class="fas fa-fire me-2"></i>Most Active</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead><tr><th>Symbol</th><th class="text-end">Price</th><th class="text-end">Volume</th></tr></thead>
+                        <tbody id="mkActive"><tr><td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm"></div></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/markets.js') }}"></script>
+{% endblock %}

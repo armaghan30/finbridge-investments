@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{% if mover_type == 'gainers' %}Top Gainers{% elif mover_type == 'losers' %}Top Losers{% else %}Most Active{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <h1>
+            {% if mover_type == 'gainers' %}
+            <i class="fas fa-arrow-up text-success me-2"></i>Top Gainers
+            {% elif mover_type == 'losers' %}
+            <i class="fas fa-arrow-down text-danger me-2"></i>Top Losers
+            {% else %}
+            <i class="fas fa-fire text-warning me-2"></i>Most Active
+            {% endif %}
+        </h1>
+        <p class="text-muted">Today's market movers</p>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+        <a href="{{ url_for('main.gainers') }}" class="btn {% if mover_type == 'gainers' %}btn-success{% else %}btn-outline-success{% endif %}">Gainers</a>
+        <a href="{{ url_for('main.losers') }}" class="btn {% if mover_type == 'losers' %}btn-danger{% else %}btn-outline-danger{% endif %}">Losers</a>
+        <a href="{{ url_for('main.most_active') }}" class="btn {% if mover_type == 'active' %}btn-warning{% else %}btn-outline-warning{% endif %}">Most Active</a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover stock-table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Change</th>
+                        <th class="text-end">% Change</th>
+                        <th class="text-end">Volume</th>
+                        <th class="text-end">Market Cap</th>
+                    </tr>
+                </thead>
+                <tbody id="moversBody">
+                    <tr><td colspan="8" class="text-center py-5"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>const MOVER_TYPE = '{{ mover_type }}';</script>
+<script src="{{ url_for('static', filename='js/movers.js') }}"></script>
+{% endblock %}

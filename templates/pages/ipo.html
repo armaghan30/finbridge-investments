@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}IPO Calendar{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <h1><i class="fas fa-calendar-alt me-2"></i>IPO Calendar</h1>
+        <p class="text-muted">Upcoming and recent initial public offerings</p>
+    </div>
+
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#upcomingIPOs">Upcoming</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#recentIPOs">Recent</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="upcomingIPOs">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Symbol</th>
+                                <th>Expected Date</th>
+                                <th class="text-end">Price Range</th>
+                                <th class="text-end">Shares Offered</th>
+                                <th>Exchange</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upcomingBody">
+                            <tr>
+                                <td>TechVision AI Corp.</td><td>TVAI</td><td>Feb 15, 2025</td>
+                                <td class="text-end">$18 - $22</td><td class="text-end">12.5M</td><td>NYSE</td>
+                            </tr>
+                            <tr>
+                                <td>GreenEnergy Solutions</td><td>GRNE</td><td>Feb 20, 2025</td>
+                                <td class="text-end">$25 - $30</td><td class="text-end">8.0M</td><td>NYSE</td>
+                            </tr>
+                            <tr>
+                                <td>CloudSecure Inc.</td><td>CSEC</td><td>Mar 1, 2025</td>
+                                <td class="text-end">$32 - $36</td><td class="text-end">6.5M</td><td>NYSE</td>
+                            </tr>
+                            <tr>
+                                <td>BioGen Therapeutics</td><td>BGTX</td><td>Mar 10, 2025</td>
+                                <td class="text-end">$14 - $17</td><td class="text-end">15.0M</td><td>NYSE</td>
+                            </tr>
+                            <tr>
+                                <td>QuantumPay Financial</td><td>QPAY</td><td>Mar 18, 2025</td>
+                                <td class="text-end">$20 - $24</td><td class="text-end">10.0M</td><td>NYSE</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="recentIPOs">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Symbol</th>
+                                <th>IPO Date</th>
+                                <th class="text-end">IPO Price</th>
+                                <th class="text-end">Current Price</th>
+                                <th class="text-end">Return</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentBody">
+                            <tr>
+                                <td>DataStream Analytics</td><td>DSAN</td><td>Jan 28, 2025</td>
+                                <td class="text-end">$28.00</td><td class="text-end">$34.50</td>
+                                <td class="text-end text-success">+23.2%</td>
+                            </tr>
+                            <tr>
+                                <td>NeuraTech Corp.</td><td>NRTC</td><td>Jan 15, 2025</td>
+                                <td class="text-end">$42.00</td><td class="text-end">$38.75</td>
+                                <td class="text-end text-danger">-7.7%</td>
+                            </tr>
+                            <tr>
+                                <td>EcoMaterials Inc.</td><td>ECOM</td><td>Jan 8, 2025</td>
+                                <td class="text-end">$15.00</td><td class="text-end">$19.25</td>
+                                <td class="text-end text-success">+28.3%</td>
+                            </tr>
+                            <tr>
+                                <td>CyberShield Security</td><td>CYBS</td><td>Dec 18, 2024</td>
+                                <td class="text-end">$22.00</td><td class="text-end">$26.80</td>
+                                <td class="text-end text-success">+21.8%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

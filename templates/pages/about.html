@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block title %}About Us - FinBridge{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* About Page Hero */
+    .about-hero {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        color: #fff;
+        padding: 80px 0 60px;
+        text-align: center;
+    }
+    .about-hero h1 {
+        font-family: 'Playfair Display', 'Georgia', serif;
+        font-weight: 700;
+        font-size: 3rem;
+        font-style: italic;
+        margin-bottom: 16px;
+    }
+    .about-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Philosophy & ESG Sections */
+    .about-section {
+        padding: 60px 0;
+    }
+    .about-section:nth-child(even) {
+        background: var(--bg-secondary);
+    }
+    .about-section .section-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--accent-light);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin-bottom: 20px;
+    }
+    .about-section h2 {
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+    .about-section p.section-text {
+        font-size: 1.05rem;
+        line-height: 1.85;
+        color: var(--text-secondary);
+        max-width: 800px;
+    }
+
+    /* Team Section */
+    .team-section {
+        padding: 70px 0;
+    }
+    .team-section h2 {
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+    }
+    .team-section .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.05rem;
+        margin-bottom: 40px;
+    }
+
+    /* Team Cards */
+    .team-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 32px 24px;
+        text-align: center;
+        height: 100%;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .team-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    /* Photo placeholder */
+    .team-photo-placeholder {
+        width: 120px;
+        height: 120px;
+        background: #e5e7eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: #9ca3af;
+        font-size: 2.5rem;
+    }
+    .team-card h5 {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+    .team-card p {
+        font-size: 0.88rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+    }
+
+    /* Disclaimer */
+    .about-disclaimer {
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        padding: 40px 0;
+    }
+
+    @media (max-width: 768px) {
+        .about-hero h1 { font-size: 2rem; }
+        .about-hero { padding: 60px 0 40px; }
+        .about-section { padding: 40px 0; }
+        .about-section h2 { font-size: 1.5rem; }
+        .team-section { padding: 40px 0; }
+        .team-section h2 { font-size: 1.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="about-hero">
+    <div class="container">
+        <h1>About FinBridge</h1>
+        <p>Bringing Wall Street to Every Street. Empowering investors through knowledge, transparency, and innovation.</p>
+    </div>
+</section>
+
+<!-- Our Philosophy -->
+<section class="about-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="section-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h2>Our Philosophy</h2>
+                <p class="section-text">We believe investing should be transparent, accessible, and rooted in sound principles. Our philosophy centers on empowering individuals through knowledge and data-driven tools, enabling smarter and more confident decisions. By combining modern screening methods with long-term strategies, we help investors navigate markets with clarity and purpose.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Commitment to ESG -->
+<section class="about-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="section-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h2>Our Commitment to ESG</h2>
+                <p class="section-text">We recognize that true investment success goes beyond financial returns. That's why we prioritize Environmental, Social, and Governance (ESG) principles, focusing on companies that are not only profitable but also responsible. Our commitment is to direct capital toward businesses that create sustainable value, foster innovation, and contribute positively to society and the environment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Team -->
+<section class="team-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2>Our Team</h2>
+            <p class="section-subtitle">The leadership driving FinBridge forward</p>
+        </div>
+        <div class="row g-4">
+            <!-- Chairman & CEO -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Chairman & CEO</h5>
+                    <p>The Chairman & CEO provides overall vision and direction for the company, combining entrepreneurial drive with strategic leadership. He ensures that the firm continues to grow with integrity, innovation, and long-term value creation for investors.</p>
+                </div>
+            </div>
+
+            <!-- Chief Investment Officer -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Chief Investment Officer (CIO)</h5>
+                    <p>The CIO leads the firm's investment strategy, overseeing portfolio design, market research, and asset allocation. With a focus on data-driven insights and disciplined decision-making, the CIO ensures that every investment aligns with our philosophy and goals.</p>
+                </div>
+            </div>
+
+            <!-- Chief Technology Officer -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Chief Technology Officer (CTO)</h5>
+                    <p>The CTO drives technological innovation, building and maintaining the advanced infrastructure behind our stock screener and investment platform. By blending finance with cutting-edge tech, the CTO ensures accuracy, speed, and reliability for all users.</p>
+                </div>
+            </div>
+
+            <!-- Chief Risk Officer -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Chief Risk Officer (CRO)</h5>
+                    <p>The CRO manages risk across all areas of investment, balancing opportunity with caution. Through rigorous analysis of volatility, diversification, and exposure, the CRO safeguards both the firm's stability and investor confidence.</p>
+                </div>
+            </div>
+
+            <!-- Chief Compliance Officer -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Chief Compliance Officer (CCO)</h5>
+                    <p>The CCO ensures that all operations meet the highest standards of ethics and regulatory requirements. By upholding transparency and accountability, the CCO strengthens trust with clients, regulators, and partners.</p>
+                </div>
+            </div>
+
+            <!-- Head of Sales & Client Relations -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card">
+                    <div class="team-photo-placeholder">
+                        <!-- Photo placeholder - will be added later -->
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5>Head of Sales & Client Relations</h5>
+                    <p>The Head of Sales & Client Relations leads outreach, partnerships, and client engagement. By connecting people with our mission and ensuring long-term satisfaction, this role builds the relationships that power our growth.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Disclaimer -->
+<section class="about-disclaimer">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Disclaimer:</strong> This platform is for informational and educational purposes only. It does not constitute financial advice. Always consult a qualified financial advisor before making investment decisions.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

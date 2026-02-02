@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Financial Analytics Platform</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading financial data...</p>
+        </div>
+    </div>
+
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-background">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+                <div class="shape shape-5"></div>
+            </div>
+        </div>
+        
+        <div class="auth-content">
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <div class="form-header">
+                    <div class="logo-container">
+                        <i class="fas fa-chart-line logo-icon"></i>
+                        <h1>FinBridge Pro</h1>
+                    </div>
+                    <p class="form-subtitle">Advanced Financial Analytics & Market Screener</p>
+                </div>
+                
+                <form id="loginFormElement" class="auth-form-element">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" id="loginUsername" class="form-control" placeholder="Username" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary auth-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" id="showRegister">Sign Up</a></p>
+                    <p class="demo-note">Demo Credentials: Any username/password</p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form">
+                <div class="form-header">
+                    <div class="logo-container">
+                        <i class="fas fa-chart-line logo-icon"></i>
+                        <h1>FinBridge Pro</h1>
+                    </div>
+                    <p class="form-subtitle">Create Your Account</p>
+                </div>
+                
+                <form id="registerFormElement" class="auth-form-element">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" id="registerUsername" class="form-control" placeholder="Full Name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" id="registerEmail" class="form-control" placeholder="Email Address" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="registerPassword" class="form-control" placeholder="Password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Confirm Password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                I agree to the <a href="#" class="terms-link">Terms & Conditions</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary auth-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <div class="navbar-brand">
+                    <i class="fas fa-chart-line"></i>
+                    <span>FinBridge Pro</span>
+                </div>
+                
+                <div class="navbar-nav ms-auto">
+                    <div class="nav-item">
+                        <button class="btn btn-outline-light btn-sm me-2" onclick="showMarketOverview()">
+                            <i class="fas fa-globe"></i> Market Overview
+                        </button>
+                    </div>
+                    <div class="nav-item">
+                        <button class="btn btn-outline-light btn-sm me-2" onclick="showWatchlist()">
+                            <i class="fas fa-star"></i> Watchlist
+                        </button>
+                    </div>
+                    <div class="nav-item">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkModeToggle">
+                            <label class="form-check-label" for="darkModeToggle">
+                                <i class="fas fa-moon"></i>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="nav-item">
+                        <button id="logoutBtn" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid">
+            <!-- Market Overview Section -->
+            <div id="marketOverviewSection" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-globe"></i>
+                                Market Overview
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>NYSE Market</h6>
+                                    <div id="nyseOverview"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>PSX Market</h6>
+                                    <div id="psxOverview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Screener Section -->
+            <div id="marketScreenerSection" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-filter"></i>
+                                Market Screener
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Price Range</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" id="priceMin" class="form-control" placeholder="Min">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" id="priceMax" class="form-control" placeholder="Max">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Market Cap</label>
+                                        <select id="marketCapFilter" class="form-select">
+                                            <option value="">All</option>
+                                            <option value="micro">Micro Cap</option>
+                                            <option value="small">Small Cap</option>
+                                            <option value="mid">Mid Cap</option>
+                                            <option value="large">Large Cap</option>
+                                            <option value="mega">Mega Cap</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">P/E Ratio</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" id="peMin" class="form-control" placeholder="Min">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" id="peMax" class="form-control" placeholder="Max">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Dividend Yield (%)</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" id="dividendMin" class="form-control" placeholder="Min">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" id="dividendMax" class="form-control" placeholder="Max">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Beta</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" id="betaMin" class="form-control" placeholder="Min">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" id="betaMax" class="form-control" placeholder="Max">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sort By</label>
+                                        <select id="sortBy" class="form-select">
+                                            <option value="market_cap">Market Cap</option>
+                                            <option value="current_price">Price</option>
+                                            <option value="pe_ratio">P/E Ratio</option>
+                                            <option value="dividend_yield">Dividend Yield</option>
+                                            <option value="change_percent">Change %</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Order</label>
+                                        <select id="sortOrder" class="form-select">
+                                            <option value="desc">Descending</option>
+                                            <option value="asc">Ascending</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button class="btn btn-primary w-100" onclick="runMarketScreener()">
+                                            <i class="fas fa-search"></i> Screen Market
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="screenerResults" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Analysis Section -->
+            <div id="stockAnalysisSection" class="row mb-4">
+                <!-- Market and Stock Selection -->
+                <div class="col-md-8">
+                    <div class="card stock-selection-card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label for="marketSelect" class="form-label">Select Market</label>
+                                    <select id="marketSelect" class="form-select">
+                                        <option value="NYSE">NYSE - New York Stock Exchange</option>
+                                        <option value="PSX">PSX - Pakistan Stock Exchange</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="tickerSelect" class="form-label">Select Stock</label>
+                                    <select id="tickerSelect" class="form-select">
+                                        <!-- Options will be populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="startDate" class="form-label">Start Date</label>
+                                    <input type="date" id="startDate" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="endDate" class="form-label">End Date</label>
+                                    <input type="date" id="endDate" class="form-control">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="intervalSelect" class="form-label">Interval</label>
+                                    <select id="intervalSelect" class="form-select">
+                                        <option value="1h">1 Hour</option>
+                                        <option value="1d">1 Day</option>
+                                        <option value="1wk">1 Week</option>
+                                        <option value="1mo">1 Month</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-primary w-100" onclick="fetchStockData()">
+                                        <i class="fas fa-search"></i> Load Data
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <div id="stockInfo" class="stock-info">
+                                        <!-- Stock info will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="generateStockReport()">
+                                    <i class="fas fa-file-alt"></i> Generate Report
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="addToWatchlist()">
+                                    <i class="fas fa-star"></i> Add to Watchlist
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" onclick="showTechnicalAnalysis()">
+                                    <i class="fas fa-chart-line"></i> Technical Analysis
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm" onclick="showRiskMetrics()">
+                                    <i class="fas fa-shield-alt"></i> Risk Metrics
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="exportData()">
+                                    <i class="fas fa-download"></i> Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Chart -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-line"></i>
+                                Live Stock Data
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="stockChart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Analysis Section -->
+            <div id="technicalAnalysisSection" class="row mb-4" style="display: none;">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-chart-line"></i>
+                                Technical Indicators
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="technicalIndicators"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-chart-area"></i>
+                                Support & Resistance
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="supportResistance"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Metrics Section -->
+            <div id="riskMetricsSection" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Risk Analysis
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="riskMetrics"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Sentiment Section -->
+            <div id="stockSentimentSection" class="row mb-4" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-brain"></i>
+                                Sentiment Analysis
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="stockSentiment"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Models Section -->
+            <div class="row mb-4">
+                <!-- CAPM Model -->
+                <div class="col-md-4">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-calculator"></i>
+                                CAPM Model
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="capmForm">
+                                <div class="mb-3">
+                                    <label for="beta" class="form-label">Beta (β)</label>
+                                    <input type="number" id="beta" class="form-control" step="0.01" value="1.2" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="marketReturn" class="form-label">Market Return (%)</label>
+                                    <input type="number" id="marketReturn" class="form-control" step="0.01" value="10.0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="riskFreeRate" class="form-label">Risk-Free Rate (%)</label>
+                                    <input type="number" id="riskFreeRate" class="form-control" step="0.01" value="2.0" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-calculator"></i>
+                                    Calculate CAPM
+                                </button>
+                            </form>
+                            <div id="capmResult" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monte Carlo Simulation -->
+                <div class="col-md-4">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-dice"></i>
+                                Monte Carlo Simulation
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="monteCarloForm">
+                                <div class="mb-3">
+                                    <label for="startPrice" class="form-label">Starting Price ($)</label>
+                                    <input type="number" id="startPrice" class="form-control" step="0.01" value="150.00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="meanReturn" class="form-label">Mean Return (%)</label>
+                                    <input type="number" id="meanReturn" class="form-control" step="0.01" value="8.0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="volatility" class="form-label">Volatility (%)</label>
+                                    <input type="number" id="volatility" class="form-control" step="0.01" value="20.0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timeHorizon" class="form-label">Time Horizon (Days)</label>
+                                    <input type="number" id="timeHorizon" class="form-control" value="252" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="numSimulations" class="form-label">Number of Simulations</label>
+                                    <input type="number" id="numSimulations" class="form-control" value="100" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-play"></i>
+                                    Run Simulation
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Black-Scholes Model -->
+                <div id="blackScholesSection" class="col-md-4">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-options"></i>
+                                Black-Scholes Model
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="blackScholesForm">
+                                <div class="mb-3">
+                                    <label for="stockPrice" class="form-label">Stock Price ($)</label>
+                                    <input type="number" id="stockPrice" class="form-control" step="0.01" value="100.00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="strikePrice" class="form-label">Strike Price ($)</label>
+                                    <input type="number" id="strikePrice" class="form-control" step="0.01" value="100.00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="timeToExpiry" class="form-label">Time to Expiry (Years)</label>
+                                    <input type="number" id="timeToExpiry" class="form-control" step="0.01" value="1.0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="volatilityBS" class="form-label">Volatility (%)</label>
+                                    <input type="number" id="volatilityBS" class="form-control" step="0.01" value="20.0" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="riskFreeRateBS" class="form-label">Risk-Free Rate (%)</label>
+                                    <input type="number" id="riskFreeRateBS" class="form-control" step="0.01" value="2.0" required>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="fas fa-calculator"></i>
+                                    Calculate Options
+                                </button>
+                            </form>
+                            <div id="blackScholesResult" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fama-French 3-Factor Model -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-chart-line"></i>
+                                Fama-French 3-Factor Model
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="famaFrenchForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="marketReturnFF" class="form-label">Market Return (%)</label>
+                                            <input type="number" id="marketReturnFF" class="form-control" step="0.01" value="10.0" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="riskFreeRateFF" class="form-label">Risk-Free Rate (%)</label>
+                                            <input type="number" id="riskFreeRateFF" class="form-control" step="0.01" value="2.0" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="betaFF" class="form-label">Beta (Market Factor)</label>
+                                            <input type="number" id="betaFF" class="form-control" step="0.01" value="1.0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="smbFactor" class="form-label">SMB Factor (%)</label>
+                                            <input type="number" id="smbFactor" class="form-control" step="0.01" value="2.0" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="hmlFactor" class="form-label">HML Factor (%)</label>
+                                            <input type="number" id="hmlFactor" class="form-control" step="0.01" value="4.0" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="smbBeta" class="form-label">SMB Beta</label>
+                                            <input type="number" id="smbBeta" class="form-control" step="0.01" value="0.5" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="hmlBeta" class="form-label">HML Beta</label>
+                                            <input type="number" id="hmlBeta" class="form-control" step="0.01" value="0.3" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-info w-100">
+                                    <i class="fas fa-calculator"></i>
+                                    Calculate Fama-French
+                                </button>
+                            </form>
+                            <div id="famaFrenchResult" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Portfolio Theory -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-chart-pie"></i>
+                                Modern Portfolio Theory (MPT)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <form id="mptForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Asset 1 (e.g., Stocks)</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="number" id="return1" class="form-control" placeholder="Expected Return (%)" value="12.0" step="0.1" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="volatility1" class="form-control" placeholder="Volatility (%)" value="20.0" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Asset 2 (e.g., Bonds)</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="number" id="return2" class="form-control" placeholder="Expected Return (%)" value="6.0" step="0.1" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="volatility2" class="form-control" placeholder="Volatility (%)" value="8.0" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Asset 3 (e.g., Commodities)</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="number" id="return3" class="form-control" placeholder="Expected Return (%)" value="8.0" step="0.1" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" id="volatility3" class="form-control" placeholder="Volatility (%)" value="15.0" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correlation12" class="form-label">Correlation (Asset 1 & 2)</label>
+                                    <input type="number" id="correlation12" class="form-control" value="0.3" step="0.1" min="-1" max="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correlation13" class="form-label">Correlation (Asset 1 & 3)</label>
+                                    <input type="number" id="correlation13" class="form-control" value="0.1" step="0.1" min="-1" max="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correlation23" class="form-label">Correlation (Asset 2 & 3)</label>
+                                    <input type="number" id="correlation23" class="form-control" value="0.2" step="0.1" min="-1" max="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="riskFreeRateMPT" class="form-label">Risk-Free Rate (%)</label>
+                                    <input type="number" id="riskFreeRateMPT" class="form-control" value="2.0" step="0.1" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-chart-line"></i>
+                                    Optimize Portfolio
+                                </button>
+                            </form>
+                            <div id="mptResult" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comprehensive Financial Metrics Dashboard -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card model-card">
+                        <div class="card-header">
+                            <h6 class="card-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Comprehensive Financial Metrics Dashboard
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button id="calculateMetricsBtn" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-calculator"></i>
+                                    Calculate Metrics
+                                </button>
+                                <div class="d-flex gap-2">
+                                    <select id="metricFilter" class="form-select form-select-sm" style="width: auto;">
+                                        <option value="">All Categories</option>
+                                        <option value="Low">Low Risk</option>
+                                        <option value="Medium">Medium Risk</option>
+                                        <option value="High">High Risk</option>
+                                        <option value="Excellent">Excellent</option>
+                                        <option value="Good">Good</option>
+                                        <option value="Poor">Poor</option>
+                                        <option value="Strong">Strong</option>
+                                        <option value="Weak">Weak</option>
+                                        <option value="Healthy">Healthy</option>
+                                        <option value="Watch">Watch</option>
+                                        <option value="Risky">Risky</option>
+                                        <option value="Safe">Safe</option>
+                                        <option value="Cheap">Cheap</option>
+                                        <option value="Fair">Fair</option>
+                                        <option value="Expensive">Expensive</option>
+                                        <option value="Undervalued">Undervalued</option>
+                                        <option value="Overvalued">Overvalued</option>
+                                    </select>
+                                    <input type="text" id="metricSearch" class="form-control form-control-sm" placeholder="Search metrics..." style="width: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="metricsTable">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Value</th>
+                                            <th>Category</th>
+                                            <th>Description</th>
+                                            <th>Interpretation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="metricsTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                <i class="fas fa-chart-line"></i>
+                                                Click "Calculate Metrics" to load comprehensive financial analysis
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="metricsSummary" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monte Carlo Chart -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-area"></i>
+                                Monte Carlo Simulation Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="monteCarloChart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Ratios -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-chart-pie"></i>
+                                Financial Ratios
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="financialRatios">
+                                <!-- Financial ratios will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>&copy; 2024 FinBridge Pro. Built by Armaghan Tariq</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <p>Advanced Financial Analytics & Market Screener Platform</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

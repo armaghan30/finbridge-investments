@@ -1,0 +1,825 @@
+{% extends "base.html" %}
+{% block title %}SMIF - Student Managed Investment Fund{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ---- SMIF Hero ---- */
+    .smif-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1e40af 100%);
+        color: #fff;
+        padding: 80px 0 60px;
+        position: relative;
+        overflow: hidden;
+    }
+    .smif-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+        opacity: 0.5;
+    }
+    .smif-hero .container { position: relative; z-index: 2; }
+    .smif-hero h1 {
+        font-family: 'Playfair Display', 'Georgia', serif;
+        font-weight: 700;
+        font-size: 2.8rem;
+        margin-bottom: 18px;
+        line-height: 1.2;
+    }
+    .smif-hero .lead {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        opacity: 0.9;
+        max-width: 750px;
+    }
+    .smif-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 20px;
+        padding: 4px 16px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+    /* ---- Summary Stats ---- */
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 24px 20px;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    .stat-card .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    .stat-card .stat-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+    .stat-card .stat-value.text-success { color: var(--success) !important; }
+    .stat-card .stat-value.text-danger { color: var(--danger) !important; }
+    .stat-card .stat-sub {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    /* ---- Chart Card ---- */
+    .chart-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+    .chart-card .chart-header {
+        padding: 20px 24px 12px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .chart-card .chart-header h3 {
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin-bottom: 2px;
+    }
+    .chart-card .chart-header p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+    }
+
+    /* ---- Allocation Section ---- */
+    .alloc-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+    }
+    .alloc-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    .alloc-ticker {
+        display: inline-block;
+        background: var(--accent-light);
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 0.85rem;
+        padding: 4px 12px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        letter-spacing: 0.03em;
+    }
+    .alloc-card .company-name {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    .alloc-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-top: 1px solid var(--border-light);
+        font-size: 0.82rem;
+    }
+    .alloc-row .label { color: var(--text-muted); }
+    .alloc-row .value { font-weight: 700; }
+    .alloc-return-positive { color: var(--success); }
+    .alloc-return-negative { color: var(--danger); }
+
+    /* ---- Cash Card Styling ---- */
+    .alloc-card.cash-card {
+        background: var(--bg-secondary);
+        border-style: dashed;
+    }
+    .alloc-card.cash-card .alloc-ticker {
+        background: #f3f4f6;
+        color: var(--text-muted);
+    }
+
+    /* ---- Daily Performance Table ---- */
+    .perf-table-wrapper {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+    }
+    .perf-table {
+        font-size: 0.82rem;
+        margin-bottom: 0;
+    }
+    .perf-table thead th {
+        background: var(--bg-secondary);
+        border-bottom: 2px solid var(--border-color);
+        font-weight: 600;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+        padding: 10px 12px;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+    .perf-table tbody td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-light);
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    .perf-table tbody tr:hover { background: var(--accent-light); }
+    .perf-table .day-badge {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        line-height: 22px;
+        text-align: center;
+        color: #fff;
+    }
+    .perf-table .day-up { background: var(--success); }
+    .perf-table .day-down { background: var(--danger); }
+
+    /* ---- CTA / Join Section ---- */
+    .smif-cta {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        color: #fff;
+        padding: 70px 0;
+        text-align: center;
+    }
+    .smif-cta h2 {
+        font-family: 'Playfair Display', 'Georgia', serif;
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+    }
+    .smif-cta p {
+        font-size: 1.05rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto 28px;
+    }
+    .btn-join {
+        background: #dc2626;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 16px 48px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 0.03em;
+        transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.35);
+    }
+    .btn-join:hover {
+        background: #b91c1c;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 28px rgba(220, 38, 38, 0.45);
+    }
+
+    /* ---- Modal Styling ---- */
+    .smif-modal .modal-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+        color: #fff;
+        border-bottom: none;
+        padding: 24px 28px 20px;
+    }
+    .smif-modal .modal-header .btn-close { filter: invert(1); }
+    .smif-modal .modal-body { padding: 28px; }
+    .smif-modal .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary);
+    }
+    .smif-modal .form-control {
+        border-color: var(--border-color);
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    .smif-modal .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .btn-submit-join {
+        background: #dc2626;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 32px;
+        font-weight: 700;
+        font-size: 1rem;
+        width: 100%;
+        transition: background 0.2s;
+    }
+    .btn-submit-join:hover { background: #b91c1c; color: #fff; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+        .smif-hero h1 { font-size: 2rem; }
+        .stat-card .stat-value { font-size: 1.3rem; }
+        .smif-cta h2 { font-size: 1.6rem; }
+    }
+    @media (max-width: 576px) {
+        .smif-hero { padding: 60px 0 40px; }
+        .smif-hero h1 { font-size: 1.6rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<section class="smif-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="smif-badge"><i class="fas fa-chart-line me-1"></i> Live Portfolio</span>
+                <h1>Student Managed<br>Investment Fund (SMIF)</h1>
+                <p class="lead">We're building Pakistan's first Student Managed Investment Fund, named as 'SMIF' a unique opportunity for students and young investors to learn by managing a real portfolio. This hands-on experience bridges the gap between theory and practice, creating the next generation of investment leaders.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     KEY SUMMARY STATS
+     ============================================ -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-3 mb-5">
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Starting Value</div>
+                    <div class="stat-value">PKR 1.00M</div>
+                    <div class="stat-sub">June 2, 2025</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Current Value</div>
+                    <div class="stat-value">PKR 1.39M</div>
+                    <div class="stat-sub">September 26, 2025</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">Total Return</div>
+                    <div class="stat-value text-success">+38.58%</div>
+                    <div class="stat-sub">Since inception</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-label">vs KSE-100</div>
+                    <div class="stat-value text-success">+36.49%</div>
+                    <div class="stat-sub">Benchmark return</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             LIVE PORTFOLIO CHART
+             ============================================ -->
+        <div class="chart-card mb-5">
+            <div class="chart-header">
+                <h3><i class="fas fa-chart-area me-2" style="color: var(--accent);"></i>Portfolio Performance vs KSE-100 Index</h3>
+                <p>Percentage growth comparison since inception (June 2, 2025)</p>
+            </div>
+            <div id="portfolioChart" style="width:100%; height:460px;"></div>
+        </div>
+
+        <!-- ============================================
+             ASSET ALLOCATION
+             ============================================ -->
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="section-title mb-1">Asset Allocation</h2>
+                    <p class="text-muted mb-0">Current portfolio holdings and individual stock returns</p>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <!-- OGDC -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">OGDC</div>
+                        <div class="company-name">Oil and Gas Development Company Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">10%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">480</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+35.2%</span></div>
+                    </div>
+                </div>
+                <!-- UBL -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">UBL</div>
+                        <div class="company-name">United Bank Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">9%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">350</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+84.5%</span></div>
+                    </div>
+                </div>
+                <!-- MARI -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">MARI</div>
+                        <div class="company-name">Mari Energies</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">8%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">130</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+18.5%</span></div>
+                    </div>
+                </div>
+                <!-- NBP -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">NBP</div>
+                        <div class="company-name">National Bank of Pakistan</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">15%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">1,550</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+100.0%</span></div>
+                    </div>
+                </div>
+                <!-- LUCK -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">LUCK</div>
+                        <div class="company-name">Lucky Cement</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">8%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">240</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+41.9%</span></div>
+                    </div>
+                </div>
+                <!-- FFC -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">FFC</div>
+                        <div class="company-name">Fauji Fertilizer Company</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">6%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">165</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+24.1%</span></div>
+                    </div>
+                </div>
+                <!-- SYS -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">SYS</div>
+                        <div class="company-name">Systems Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">8%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">775</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+41.7%</span></div>
+                    </div>
+                </div>
+                <!-- NESTLE -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">NESTLE</div>
+                        <div class="company-name">NESTLE</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">5%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">6</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-negative">-0.1%</span></div>
+                    </div>
+                </div>
+                <!-- GAL -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">GAL</div>
+                        <div class="company-name">Ghandhara Automobiles Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">9%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">215</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+41.7%</span></div>
+                    </div>
+                </div>
+                <!-- BWCL -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">BWCL</div>
+                        <div class="company-name">Bestway Cement Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">5%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">125</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+67.0%</span></div>
+                    </div>
+                </div>
+                <!-- EFERT -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">EFERT</div>
+                        <div class="company-name">Engro Fertilizers</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">4%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">220</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+20.9%</span></div>
+                    </div>
+                </div>
+                <!-- PAKT -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card">
+                        <div class="alloc-ticker">PAKT</div>
+                        <div class="company-name">Pakistan Tobacco Company Limited</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">3%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">25</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value alloc-return-positive">+39.5%</span></div>
+                    </div>
+                </div>
+                <!-- Cash - Day Trading -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card cash-card">
+                        <div class="alloc-ticker"><i class="fas fa-coins me-1"></i> CASH</div>
+                        <div class="company-name">Cash for Day Trading</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">5%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">-</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value">-</span></div>
+                    </div>
+                </div>
+                <!-- Cash - Buy Dips -->
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="alloc-card cash-card">
+                        <div class="alloc-ticker"><i class="fas fa-piggy-bank me-1"></i> CASH</div>
+                        <div class="company-name">Cash to Buy Dips</div>
+                        <div class="alloc-row"><span class="label">Weight</span><span class="value">5%</span></div>
+                        <div class="alloc-row"><span class="label">Shares</span><span class="value">-</span></div>
+                        <div class="alloc-row"><span class="label">Return</span><span class="value">-</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie me-2" style="color: var(--accent);"></i>Allocation Breakdown</h3>
+                    <p>Portfolio weight distribution across holdings</p>
+                </div>
+                <div id="allocationPie" style="width:100%; height:420px;"></div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             DAILY PERFORMANCE TABLE
+             ============================================ -->
+        <div class="mb-5">
+            <div class="mb-4">
+                <h2 class="section-title mb-1">Daily Performance Log</h2>
+                <p class="text-muted mb-0">Complete trading history with daily returns and portfolio values</p>
+            </div>
+
+            <div class="perf-table-wrapper">
+                <table class="table perf-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th class="text-end">Portfolio Value (PKR)</th>
+                            <th class="text-end">Daily Change (PKR)</th>
+                            <th class="text-end">Daily Return</th>
+                            <th class="text-end">Cumulative Return</th>
+                            <th class="text-end">KSE-100 Growth</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="perfTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     JOIN NOW CTA
+     ============================================ -->
+<section class="smif-cta">
+    <div class="container">
+        <h2>Be Part of Pakistan's First SMIF</h2>
+        <p>Join a community of ambitious students gaining real-world investment experience. Learn portfolio management, fundamental analysis, and risk management with a live portfolio.</p>
+        <button class="btn btn-join" data-bs-toggle="modal" data-bs-target="#joinModal">
+            <i class="fas fa-rocket me-2"></i>JOIN NOW
+        </button>
+    </div>
+</section>
+
+<!-- ============================================
+     JOIN MODAL
+     ============================================ -->
+<div class="modal fade smif-modal" id="joinModal" tabindex="-1" aria-labelledby="joinModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: var(--radius-lg); overflow: hidden;">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="joinModalLabel" style="font-weight: 700;">Join SMIF</h5>
+                    <p class="mb-0" style="font-size: 0.85rem; opacity: 0.8;">Fill in your details to apply for the Student Managed Investment Fund</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="joinForm" novalidate>
+                    <div class="mb-3">
+                        <label for="joinName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="joinName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="joinPhone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="joinPhone" placeholder="e.g. 0300-1234567" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="joinEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="joinEmail" placeholder="your.email@example.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="joinUniversity" class="form-label">University <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="joinUniversity" placeholder="e.g. IBA Karachi" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="joinCity" class="form-label">City <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="joinCity" placeholder="e.g. Karachi" required>
+                    </div>
+                    <button type="submit" class="btn btn-submit-join">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Application
+                    </button>
+                </form>
+                <div id="joinSuccess" class="text-center py-4" style="display:none;">
+                    <div style="width:60px;height:60px;background:var(--success-bg);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                        <i class="fas fa-check" style="color:var(--success);font-size:1.5rem;"></i>
+                    </div>
+                    <h5 style="font-weight:700;">Application Submitted!</h5>
+                    <p class="text-muted mb-0">Thank you for your interest. We will get back to you soon.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ============================================
+    // DATA
+    // ============================================
+    const dates = ['2025-06-02','2025-06-03','2025-06-04','2025-06-05','2025-06-10','2025-06-11','2025-06-12','2025-06-13','2025-06-16','2025-06-17','2025-06-18','2025-06-19','2025-06-20','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-04','2025-07-07','2025-07-08','2025-07-09','2025-07-10','2025-07-11','2025-07-14','2025-07-15','2025-07-16','2025-07-17','2025-07-18','2025-07-21','2025-07-22','2025-07-23','2025-07-24','2025-07-25','2025-07-28','2025-07-29','2025-07-30','2025-07-31','2025-08-01','2025-08-04','2025-08-05','2025-08-06','2025-08-07','2025-08-08','2025-08-11','2025-08-12','2025-08-13','2025-08-15','2025-08-18','2025-08-19','2025-08-20','2025-08-21','2025-08-22','2025-08-25','2025-08-26','2025-08-27','2025-08-28','2025-08-29','2025-09-01','2025-09-02','2025-09-03','2025-09-04','2025-09-05','2025-09-08','2025-09-09','2025-09-10','2025-09-11','2025-09-12','2025-09-15','2025-09-16','2025-09-17','2025-09-18','2025-09-19','2025-09-22','2025-09-23','2025-09-24','2025-09-25','2025-09-26'];
+
+    const portfolioValues = [1000000,994243,1000554,1018256,1010113,1013876,1033136,1029189,1012891,1020219,1020402,1010112,1006455,1008482,978673,1027220,1026247,1017324,1032502,1037436,1055771,1077565,1081395,1106169,1108524,1109045,1103750,1119874,1126555,1145172,1139375,1141848,1161252,1153069,1150144,1156027,1162328,1161438,1171135,1174620,1159640,1168561,1183976,1201538,1210882,1220280,1256371,1253535,1250371,1262217,1259060,1263817,1266610,1272079,1272121,1279735,1274405,1279393,1275729,1275403,1266862,1273204,1279510,1293278,1295193,1304523,1311615,1335375,1341825,1350439,1354951,1349179,1343809,1354495,1357596,1357525,1368596,1372903,1375283,1386003,1383875,1385777];
+
+    const portfolioGrowth = [0.00,-0.58,0.06,1.83,1.01,1.39,3.31,2.92,1.29,2.02,2.04,1.01,0.65,0.85,-2.13,2.72,2.62,1.73,3.25,3.74,5.58,7.76,8.14,10.62,10.85,10.90,10.38,11.99,12.66,14.52,13.94,14.18,16.13,15.31,15.01,15.60,16.23,16.14,17.11,17.46,15.96,16.86,18.40,20.15,21.09,22.03,25.64,25.35,25.04,26.22,25.91,26.38,26.66,27.21,27.21,27.97,27.44,27.94,27.57,27.54,26.69,27.32,27.95,29.33,29.52,30.45,31.16,33.54,34.18,35.04,35.50,34.92,34.38,35.45,35.76,35.75,36.86,37.29,37.53,38.60,38.39,38.58];
+
+    const kse100Growth = [0.00,1.32,2.46,2.32,2.65,4.61,4.39,2.75,2.82,2.60,1.34,0.95,0.96,-2.28,2.83,3.27,2.67,4.63,5.68,7.84,9.65,9.93,11.00,12.19,12.22,11.52,12.54,12.97,14.83,14.35,14.72,16.65,16.59,16.27,17.28,17.14,16.67,17.10,17.25,16.06,16.43,17.26,18.64,19.49,20.32,22.05,22.52,22.30,23.60,23.66,23.26,23.23,24.66,25.99,26.68,25.54,25.75,25.18,24.86,24.07,23.95,25.02,26.16,27.00,28.03,28.42,29.78,31.30,31.70,32.09,31.35,29.91,30.71,31.38,31.38,32.87,32.94,32.53,32.86,33.11,33.99,36.49];
+
+    // ============================================
+    // PORTFOLIO PERFORMANCE CHART
+    // ============================================
+    const tracePortfolio = {
+        x: dates,
+        y: portfolioGrowth,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'SMIF Portfolio',
+        line: {
+            color: '#2563eb',
+            width: 2.5,
+            shape: 'spline'
+        },
+        fill: 'tozeroy',
+        fillcolor: 'rgba(37, 99, 235, 0.06)',
+        hovertemplate: '<b>SMIF Portfolio</b><br>Date: %{x}<br>Growth: %{y:.2f}%<br>Value: PKR %{customdata:,.0f}<extra></extra>',
+        customdata: portfolioValues
+    };
+
+    const traceKSE = {
+        x: dates,
+        y: kse100Growth,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'KSE-100 Index',
+        line: {
+            color: '#94a3b8',
+            width: 2,
+            dash: 'dot',
+            shape: 'spline'
+        },
+        hovertemplate: '<b>KSE-100 Index</b><br>Date: %{x}<br>Growth: %{y:.2f}%<extra></extra>'
+    };
+
+    const chartLayout = {
+        showlegend: true,
+        legend: {
+            orientation: 'h',
+            yanchor: 'bottom',
+            y: 1.02,
+            xanchor: 'left',
+            x: 0,
+            font: { family: 'Inter, sans-serif', size: 12, color: '#555' }
+        },
+        xaxis: {
+            type: 'date',
+            gridcolor: '#f0f1f3',
+            linecolor: '#e5e7eb',
+            tickfont: { family: 'Inter, sans-serif', size: 11, color: '#888' },
+            dtick: 'M1',
+            tickformat: '%b %d'
+        },
+        yaxis: {
+            title: { text: 'Growth (%)', font: { family: 'Inter, sans-serif', size: 12, color: '#888' } },
+            gridcolor: '#f0f1f3',
+            linecolor: '#e5e7eb',
+            tickfont: { family: 'Inter, sans-serif', size: 11, color: '#888' },
+            ticksuffix: '%',
+            zeroline: true,
+            zerolinecolor: '#e5e7eb',
+            zerolinewidth: 1
+        },
+        margin: { l: 60, r: 30, t: 20, b: 50 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        hovermode: 'x unified',
+        hoverlabel: {
+            bgcolor: '#1a1a2e',
+            font: { family: 'Inter, sans-serif', size: 12, color: '#fff' },
+            bordercolor: 'transparent'
+        }
+    };
+
+    const chartConfig = {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['pan2d', 'select2d', 'lasso2d', 'autoScale2d'],
+        displaylogo: false
+    };
+
+    Plotly.newPlot('portfolioChart', [tracePortfolio, traceKSE], chartLayout, chartConfig);
+
+    // ============================================
+    // ALLOCATION PIE CHART
+    // ============================================
+    const pieData = [{
+        labels: ['OGDC','UBL','MARI','NBP','LUCK','FFC','SYS','NESTLE','GAL','BWCL','EFERT','PAKT','Cash (Day Trading)','Cash (Buy Dips)'],
+        values: [10,9,8,15,8,6,8,5,9,5,4,3,5,5],
+        type: 'pie',
+        hole: 0.48,
+        marker: {
+            colors: [
+                '#2563eb','#3b82f6','#60a5fa','#1e40af',
+                '#10b981','#34d399','#6366f1','#8b5cf6',
+                '#f59e0b','#ef4444','#ec4899','#14b8a6',
+                '#d1d5db','#9ca3af'
+            ],
+            line: { color: '#fff', width: 2 }
+        },
+        textinfo: 'label+percent',
+        textfont: { family: 'Inter, sans-serif', size: 11, color: '#333' },
+        hovertemplate: '<b>%{label}</b><br>Weight: %{value}%<br>Share: %{percent}<extra></extra>',
+        insidetextorientation: 'radial'
+    }];
+
+    const pieLayout = {
+        showlegend: true,
+        legend: {
+            font: { family: 'Inter, sans-serif', size: 11, color: '#555' },
+            orientation: 'h',
+            yanchor: 'top',
+            y: -0.05,
+            xanchor: 'center',
+            x: 0.5
+        },
+        margin: { l: 20, r: 20, t: 20, b: 60 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        annotations: [{
+            text: '<b>14</b><br>Holdings',
+            showarrow: false,
+            font: { family: 'Inter, sans-serif', size: 16, color: '#1a1a2e' },
+            x: 0.5, y: 0.5
+        }]
+    };
+
+    Plotly.newPlot('allocationPie', pieData, pieLayout, { responsive: true, displaylogo: false, displayModeBar: false });
+
+    // ============================================
+    // DAILY PERFORMANCE TABLE
+    // ============================================
+    const tbody = document.getElementById('perfTableBody');
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    for (let i = 0; i < dates.length; i++) {
+        const d = new Date(dates[i]);
+        const dateStr = monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        const val = portfolioValues[i];
+        const prevVal = i > 0 ? portfolioValues[i - 1] : val;
+        const dailyChange = val - prevVal;
+        const dailyReturn = i > 0 ? ((val - prevVal) / prevVal * 100) : 0;
+        const cumReturn = portfolioGrowth[i];
+        const kseG = kse100Growth[i];
+        const isUp = dailyChange >= 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td style="color:var(--text-muted);font-weight:500;">' + (i + 1) + '</td>' +
+            '<td style="font-weight:600;">' + dateStr + '</td>' +
+            '<td class="text-end" style="font-weight:600;">PKR ' + val.toLocaleString() + '</td>' +
+            '<td class="text-end ' + (isUp ? 'text-success' : 'text-danger') + '">' +
+                (isUp ? '+' : '') + dailyChange.toLocaleString() +
+            '</td>' +
+            '<td class="text-end ' + (isUp ? 'text-success' : 'text-danger') + '">' +
+                (isUp ? '+' : '') + dailyReturn.toFixed(2) + '%' +
+            '</td>' +
+            '<td class="text-end ' + (cumReturn >= 0 ? 'text-success' : 'text-danger') + '" style="font-weight:600;">' +
+                (cumReturn >= 0 ? '+' : '') + cumReturn.toFixed(2) + '%' +
+            '</td>' +
+            '<td class="text-end" style="color:var(--text-secondary);">' +
+                (kseG >= 0 ? '+' : '') + kseG.toFixed(2) + '%' +
+            '</td>' +
+            '<td class="text-center">' +
+                '<span class="day-badge ' + (isUp ? 'day-up' : 'day-down') + '">' +
+                    (isUp ? '<i class="fas fa-arrow-up" style="font-size:0.6rem;"></i>' : '<i class="fas fa-arrow-down" style="font-size:0.6rem;"></i>') +
+                '</span>' +
+            '</td>';
+        tbody.appendChild(tr);
+    }
+
+    // ============================================
+    // JOIN FORM HANDLER
+    // ============================================
+    const joinForm = document.getElementById('joinForm');
+    const joinSuccess = document.getElementById('joinSuccess');
+
+    joinForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!joinForm.checkValidity()) {
+            joinForm.classList.add('was-validated');
+            return;
+        }
+        // Hide form, show success
+        joinForm.style.display = 'none';
+        joinSuccess.style.display = 'block';
+    });
+})();
+</script>
+{% endblock %}

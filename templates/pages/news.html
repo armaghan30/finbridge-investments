@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Market News{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <h1><i class="fas fa-newspaper me-2"></i>Market News</h1>
+        <p class="text-muted">Latest financial news and market updates</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4" id="newsContainer">
+                <div class="card-body">
+                    <article class="news-item mb-4 pb-4 border-bottom">
+                        <span class="badge bg-primary mb-2">Markets</span>
+                        <h4>Federal Reserve Signals Potential Rate Changes Ahead</h4>
+                        <p class="text-muted small">January 31, 2025</p>
+                        <p>The Federal Reserve concluded its latest policy meeting with signals that interest rate adjustments may be on the horizon, as inflation data continues to evolve amid changing economic conditions.</p>
+                    </article>
+                    <article class="news-item mb-4 pb-4 border-bottom">
+                        <span class="badge bg-success mb-2">Tech</span>
+                        <h4>AI Sector Drives Market Rally in Early 2025</h4>
+                        <p class="text-muted small">January 30, 2025</p>
+                        <p>Technology stocks continue to lead market gains as artificial intelligence companies report strong earnings and increased enterprise adoption.</p>
+                    </article>
+                    <article class="news-item mb-4 pb-4 border-bottom">
+                        <span class="badge bg-warning text-dark mb-2">Energy</span>
+                        <h4>Oil Prices Stabilize Amid Global Supply Adjustments</h4>
+                        <p class="text-muted small">January 29, 2025</p>
+                        <p>Crude oil markets find equilibrium as OPEC+ members discuss production strategy and global demand forecasts are revised.</p>
+                    </article>
+                    <article class="news-item mb-4 pb-4 border-bottom">
+                        <span class="badge bg-info mb-2">Earnings</span>
+                        <h4>Q4 Earnings Season Shows Mixed Results Across Sectors</h4>
+                        <p class="text-muted small">January 28, 2025</p>
+                        <p>Fourth quarter earnings reports reveal divergent performance across sectors, with technology and healthcare outperforming while consumer discretionary faces headwinds.</p>
+                    </article>
+                    <article class="news-item mb-4">
+                        <span class="badge bg-secondary mb-2">Crypto</span>
+                        <h4>Institutional Interest in Digital Assets Continues to Grow</h4>
+                        <p class="text-muted small">January 27, 2025</p>
+                        <p>Major financial institutions expand their digital asset offerings as regulatory frameworks become clearer in key markets.</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Trending Stocks</h5></div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="trendingStocks">
+                        <a href="/stocks/NVDA" class="list-group-item list-group-item-action d-flex justify-content-between">
+                            <div><strong>NVDA</strong><br><small class="text-muted">NVIDIA Corp.</small></div>
+                            <div class="text-end"><span class="text-success">+3.2%</span></div>
+                        </a>
+                        <a href="/stocks/AAPL" class="list-group-item list-group-item-action d-flex justify-content-between">
+                            <div><strong>AAPL</strong><br><small class="text-muted">Apple Inc.</small></div>
+                            <div class="text-end"><span class="text-success">+1.8%</span></div>
+                        </a>
+                        <a href="/stocks/TSLA" class="list-group-item list-group-item-action d-flex justify-content-between">
+                            <div><strong>TSLA</strong><br><small class="text-muted">Tesla Inc.</small></div>
+                            <div class="text-end"><span class="text-danger">-2.1%</span></div>
+                        </a>
+                        <a href="/stocks/MSFT" class="list-group-item list-group-item-action d-flex justify-content-between">
+                            <div><strong>MSFT</strong><br><small class="text-muted">Microsoft Corp.</small></div>
+                            <div class="text-end"><span class="text-success">+0.9%</span></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Market Summary</h5></div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>S&P 500</span>
+                        <span class="text-success">+0.45%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>NASDAQ</span>
+                        <span class="text-success">+0.72%</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>DOW</span>
+                        <span class="text-danger">-0.12%</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Russell 2000</span>
+                        <span class="text-success">+0.33%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

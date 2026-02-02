@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+{% block title %}FinBridge Scholars Program{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Scholars Hero */
+    .scholars-hero {
+        background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%);
+        color: #fff;
+        padding: 80px 0 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .scholars-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .scholars-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .scholars-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    .scholars-hero h1 {
+        font-family: 'Playfair Display', 'Georgia', serif;
+        font-weight: 700;
+        font-size: 3rem;
+        font-style: italic;
+        margin-bottom: 16px;
+    }
+    .scholars-hero .hero-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 6px 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        margin-bottom: 20px;
+    }
+    .scholars-hero p {
+        font-size: 1.05rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Section Styling */
+    .scholars-section {
+        padding: 70px 0;
+    }
+    .scholars-section.bg-alt {
+        background: var(--bg-secondary);
+    }
+    .scholars-section h2 {
+        font-weight: 800;
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+    }
+    .scholars-section .lead-text {
+        font-size: 1.05rem;
+        line-height: 1.85;
+        color: var(--text-secondary);
+        max-width: 850px;
+    }
+    .scholars-section .lead-text.centered {
+        margin: 0 auto;
+    }
+
+    /* Program Cards */
+    .program-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 32px 28px;
+        height: 100%;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .program-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    .program-card .card-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    .program-card h4 {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+
+    /* Card icon color themes */
+    .icon-green {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+    .icon-blue {
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+    .icon-amber {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    /* Criteria List */
+    .criteria-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .criteria-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-light);
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: var(--text-secondary);
+    }
+    .criteria-list li:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .criteria-list li i {
+        flex-shrink: 0;
+        margin-top: 4px;
+        font-size: 0.85rem;
+    }
+    .criteria-list li i.fa-check-circle {
+        color: #16a34a;
+    }
+    .criteria-list li i.fa-circle {
+        color: var(--accent);
+        font-size: 0.5rem;
+        margin-top: 8px;
+    }
+    .criteria-list li i.fa-trophy,
+    .criteria-list li i.fa-star {
+        color: #d97706;
+    }
+
+    /* Objective Section */
+    .objective-section {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        color: #fff;
+        padding: 60px 0;
+        text-align: center;
+    }
+    .objective-section h2 {
+        color: #fff;
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    .objective-section p {
+        font-size: 1.05rem;
+        line-height: 1.85;
+        opacity: 0.92;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Disclaimer */
+    .scholars-disclaimer {
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        padding: 40px 0;
+    }
+
+    @media (max-width: 768px) {
+        .scholars-hero h1 { font-size: 2rem; }
+        .scholars-hero { padding: 60px 0 40px; }
+        .scholars-section { padding: 40px 0; }
+        .scholars-section h2 { font-size: 1.5rem; }
+        .objective-section h2 { font-size: 1.5rem; }
+        .objective-section { padding: 40px 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="scholars-hero">
+    <div class="container">
+        <div class="hero-badge"><i class="fas fa-graduation-cap me-2"></i>Scholarship Program</div>
+        <h1>FinBridge Scholars Program</h1>
+        <p>Recognizing analytical excellence and building future leaders in Pakistan's capital markets</p>
+    </div>
+</section>
+
+<!-- Overview -->
+<section class="scholars-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center mb-4">
+                    <h2>Program Overview</h2>
+                </div>
+                <p class="lead-text centered text-center">As part of our commitment to advancing financial education and fostering young investment talent, FinBridge has established the FinBridge Scholars Program, a performance-based scholarship awarded to exceptional participants of the MAYS Student-Managed Investment Fund (SMIF). The program is designed to recognize analytical excellence, promote ethical investing, and build a pipeline of future leaders who will contribute to a more transparent and progressive financial ecosystem in Pakistan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Eligibility, Responsibilities, Awards -->
+<section class="scholars-section bg-alt">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Eligibility Criteria -->
+            <div class="col-lg-4">
+                <div class="program-card">
+                    <div class="card-icon icon-green">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h4>Eligibility Criteria</h4>
+                    <ul class="criteria-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Be enrolled in a bachelor's degree in finance, Accounting & Finance, or a closely related discipline at a recognized university.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Be active participants of the Student-Managed Investment Fund (SMIF).</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Demonstrate consistent performance in portfolio analysis, asset allocation, and risk management.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Exhibit strong ethical standards, teamwork, and leadership within the fund.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Maintain a satisfactory academic standing and commitment to professional development.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Key Responsibilities -->
+            <div class="col-lg-4">
+                <div class="program-card">
+                    <div class="card-icon icon-blue">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h4>Key Responsibilities</h4>
+                    <ul class="criteria-list">
+                        <li>
+                            <i class="fas fa-circle"></i>
+                            <span>Conduct in-depth equity research and maintain detailed financial models for assigned sectors.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-circle"></i>
+                            <span>Participate in portfolio strategy discussions and contribute to fund decision-making.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-circle"></i>
+                            <span>Prepare investment reports and presentations for review by FinBridge leadership.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-circle"></i>
+                            <span>Uphold the principles of responsible investing, transparency, and long-term value creation.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Awards and Recognition -->
+            <div class="col-lg-4">
+                <div class="program-card">
+                    <div class="card-icon icon-amber">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4>Awards & Recognition</h4>
+                    <ul class="criteria-list">
+                        <li>
+                            <i class="fas fa-star"></i>
+                            <span>A financial scholarship recognizing academic and professional merit.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i>
+                            <span>A Certificate of Distinction endorsed by FinBridge.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i>
+                            <span>Mentorship opportunities with experienced professionals in finance and investment.</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-star"></i>
+                            <span>Potential preference for internship or employment opportunities within FinBridge or its affiliated entities.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Program Objective -->
+<section class="objective-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h2>Program Objective</h2>
+                <p>Through this initiative, FinBridge aims to bridge academic knowledge with practical investment experience, nurture analytical talent, and contribute to the development of future leaders in Pakistan's capital markets.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Disclaimer -->
+<section class="scholars-disclaimer">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Disclaimer:</strong> This platform is for informational and educational purposes only. It does not constitute financial advice. Always consult a qualified financial advisor before making investment decisions.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

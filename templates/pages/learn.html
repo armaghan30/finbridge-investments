@@ -1,0 +1,1011 @@
+{% extends "base.html" %}
+{% block title %}Learn{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ---- Learn Page Header ---- */
+    .learn-hero {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        color: #fff;
+        padding: 80px 0 60px;
+        text-align: center;
+    }
+    .learn-hero h1 {
+        font-family: 'Playfair Display', 'Georgia', serif;
+        font-weight: 700;
+        font-size: 3rem;
+        margin-bottom: 18px;
+        font-style: italic;
+    }
+    .learn-hero p {
+        max-width: 720px;
+        margin: 0 auto;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        opacity: 0.92;
+    }
+
+    /* ---- Course Cards ---- */
+    .course-card {
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 14px;
+        padding: 28px 24px 24px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .course-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .course-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 16px;
+        flex-shrink: 0;
+    }
+    .course-icon.gold   { background: #fef3c7; color: #d97706; }
+    .course-icon.teal   { background: #ccfbf1; color: #0d9488; }
+    .course-icon.green  { background: #dcfce7; color: #16a34a; }
+
+    .course-card h5 {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+        color: var(--text-primary, #1a1a2e);
+    }
+    .course-card .course-desc {
+        color: var(--text-secondary, #555);
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+    .course-card .learn-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 18px;
+    }
+    .course-card .learn-list li {
+        font-size: 0.85rem;
+        color: var(--text-secondary, #555);
+        padding: 3px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .course-card .learn-list li::before {
+        content: "\f00c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 0.7rem;
+        color: var(--success, #16a34a);
+    }
+    .course-card .card-bottom {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .format-badge {
+        background: var(--bg-secondary, #f8f9fb);
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 6px;
+        padding: 3px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-secondary, #555);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .open-link {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--accent, #2563eb);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .open-link:hover { color: var(--accent-hover, #1d4ed8); }
+
+    .courses-note {
+        font-size: 0.85rem;
+        color: var(--text-muted, #888);
+        margin-top: 18px;
+    }
+
+    /* ---- Accordion / Tips Section ---- */
+    .category-header {
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--text-primary, #1a1a2e);
+        margin: 32px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--accent, #2563eb);
+        display: inline-block;
+    }
+    .category-header i {
+        margin-right: 8px;
+        color: var(--accent, #2563eb);
+    }
+
+    .accordion-item {
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 8px !important;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    .accordion-item:last-child { margin-bottom: 0; }
+
+    .accordion-button {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-primary, #1a1a2e);
+        background: var(--bg-card, #fff);
+        padding: 14px 20px;
+        border: none;
+        box-shadow: none !important;
+    }
+    .accordion-button:not(.collapsed) {
+        background: var(--accent-light, #eff6ff);
+        color: var(--accent, #2563eb);
+    }
+    .accordion-button::after {
+        background-size: 1rem;
+    }
+    .accordion-body {
+        padding: 16px 20px 20px;
+        font-size: 0.9rem;
+        color: var(--text-secondary, #555);
+        line-height: 1.75;
+    }
+    .accordion-body strong { color: var(--text-primary, #1a1a2e); }
+
+    .formula-box {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 18px;
+        font-family: 'Inter', monospace;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin: 10px 0;
+        display: inline-block;
+        letter-spacing: 0.02em;
+    }
+    .example-box {
+        background: var(--bg-secondary, #f8f9fb);
+        border-left: 3px solid var(--accent, #2563eb);
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin-top: 10px;
+        font-size: 0.88rem;
+        color: var(--text-primary, #1a1a2e);
+    }
+    .item-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: var(--accent, #2563eb);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 0.72rem;
+        font-weight: 700;
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 768px) {
+        .learn-hero h1 { font-size: 2rem; }
+        .learn-hero { padding: 60px 0 40px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ================================================================
+     HEADER SECTION
+     ================================================================ -->
+<section class="learn-hero">
+    <div class="container">
+        <h1>Learn Before Invest</h1>
+        <p>Financial literacy is the foundation of smart investing. Our platform offers guides, courses, and insights to help you understand market concepts, risks, and strategies before you put your money at stake.</p>
+    </div>
+</section>
+
+<!-- ================================================================
+     FREE COURSES SECTION
+     ================================================================ -->
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Courses</h2>
+            <p class="section-subtitle">Free resources to build your investing foundation</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Card 1: Income Investing -->
+            <div class="col-lg-4 col-md-6">
+                <div class="course-card">
+                    <div class="course-icon gold">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <h5>Income Investing</h5>
+                    <p class="course-desc">Build stable cash flow with dividends and interest.</p>
+                    <p class="mb-1" style="font-size:0.82rem;font-weight:600;color:var(--text-primary);">What you'll learn</p>
+                    <ul class="learn-list">
+                        <li>Key concepts and frameworks</li>
+                        <li>Practical examples &amp; charts</li>
+                        <li>Actionable takeaways</li>
+                    </ul>
+                    <div class="card-bottom">
+                        <span class="format-badge">DOCX</span>
+                        <a href="{{ url_for('static', filename='courses/income-investing.docx') }}" class="open-link" target="_blank">Open <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Stock Investing -->
+            <div class="col-lg-4 col-md-6">
+                <div class="course-card">
+                    <div class="course-icon teal">
+                        <i class="fas fa-th"></i>
+                    </div>
+                    <h5>Stock Investing</h5>
+                    <p class="course-desc">Master fundamentals to pick long-term winners.</p>
+                    <p class="mb-1" style="font-size:0.82rem;font-weight:600;color:var(--text-primary);">What you'll learn</p>
+                    <ul class="learn-list">
+                        <li>Key concepts and frameworks</li>
+                        <li>Practical examples &amp; charts</li>
+                        <li>Actionable takeaways</li>
+                    </ul>
+                    <div class="card-bottom">
+                        <span class="format-badge">DOCX</span>
+                        <a href="{{ url_for('static', filename='courses/stock-investing.docx') }}" class="open-link" target="_blank">Open <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Stock Trading -->
+            <div class="col-lg-4 col-md-6">
+                <div class="course-card">
+                    <div class="course-icon green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Stock Trading</h5>
+                    <p class="course-desc">Learn technicals and strategies for active trading.</p>
+                    <p class="mb-1" style="font-size:0.82rem;font-weight:600;color:var(--text-primary);">What you'll learn</p>
+                    <ul class="learn-list">
+                        <li>Key concepts and frameworks</li>
+                        <li>Practical examples &amp; charts</li>
+                        <li>Actionable takeaways</li>
+                    </ul>
+                    <div class="card-bottom">
+                        <span class="format-badge">DOCX</span>
+                        <a href="{{ url_for('static', filename='courses/stock-trading.docx') }}" class="open-link" target="_blank">Open <i class="fas fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="courses-note text-center"><i class="fas fa-download me-1"></i>Click 'Open' to download the course material in DOCX format.</p>
+    </div>
+</section>
+
+<!-- ================================================================
+     TIPS & FORMULAS SECTION
+     ================================================================ -->
+<section class="section-padding bg-light-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Tips &amp; Formulas</h2>
+            <p class="section-subtitle">37 essential financial metrics every investor should know</p>
+        </div>
+
+        <!-- ======================== VALUATION RATIOS ======================== -->
+        <div class="category-header"><i class="fas fa-chart-pie"></i>Valuation Ratios</div>
+        <div class="accordion" id="valuationRatios">
+
+            <!-- 1. Market Cap Growth -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula1">
+                        <span class="item-number">1</span> Market Cap Growth
+                    </button>
+                </h2>
+                <div id="formula1" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Market capitalization growth measures how much the total market value of a company's outstanding shares has increased over a specific period. It reflects investor confidence and business expansion.</p>
+                        <div class="formula-box">Market Cap = Share Price &times; Total Outstanding Shares</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company's market cap was Rs. 50 billion last year and is now Rs. 65 billion, its market cap growth is ((65 - 50) / 50) &times; 100 = <strong>30%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Enterprise Value (EV) -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula2">
+                        <span class="item-number">2</span> Enterprise Value (EV)
+                    </button>
+                </h2>
+                <div id="formula2" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Enterprise Value represents the total value of a company, including both equity and debt, minus cash. It is considered a more comprehensive measure than market cap alone because it accounts for what an acquirer would actually pay.</p>
+                        <div class="formula-box">EV = Market Cap + Total Debt &minus; Cash &amp; Cash Equivalents</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with a market cap of Rs. 100 billion, Rs. 30 billion in debt, and Rs. 10 billion in cash has an EV of 100 + 30 - 10 = <strong>Rs. 120 billion</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Last Close Price -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula3">
+                        <span class="item-number">3</span> Last Close Price
+                    </button>
+                </h2>
+                <div id="formula3" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The last close price is the final price at which a stock traded during the most recent trading session. It serves as a reference point for the next trading day and is widely used in calculations for technical and fundamental analysis.</p>
+                        <div class="example-box">
+                            <strong>Example:</strong> If XYZ Corp's shares last traded at Rs. 245.50 before the market closed yesterday, the last close price is <strong>Rs. 245.50</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. P/E Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula4">
+                        <span class="item-number">4</span> P/E Ratio (Price-to-Earnings)
+                    </button>
+                </h2>
+                <div id="formula4" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Price-to-Earnings ratio shows how much investors are willing to pay per rupee of earnings. A high P/E may suggest the stock is overvalued or that investors expect high growth, while a low P/E may indicate undervaluation or slow growth.</p>
+                        <div class="formula-box">P/E Ratio = Share Price / Earnings Per Share (EPS)</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 100 and its EPS is Rs. 10, the P/E ratio is 100 / 10 = <strong>10</strong>. This means investors pay Rs. 10 for every Rs. 1 of earnings.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Forward P/E -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula5">
+                        <span class="item-number">5</span> Forward P/E
+                    </button>
+                </h2>
+                <div id="formula5" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Forward P/E uses expected future earnings rather than trailing earnings. It provides a forward-looking valuation and helps investors assess whether a stock is cheap or expensive relative to its anticipated profitability.</p>
+                        <div class="formula-box">Forward P/E = Share Price / Estimated Future EPS</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 150 and analysts estimate next year's EPS at Rs. 15, the forward P/E is 150 / 15 = <strong>10</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. P/S Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula6">
+                        <span class="item-number">6</span> P/S Ratio (Price-to-Sales)
+                    </button>
+                </h2>
+                <div id="formula6" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Price-to-Sales ratio compares a company's stock price to its revenue per share. It is useful for valuing companies that do not yet have positive earnings, such as growth-stage firms.</p>
+                        <div class="formula-box">P/S Ratio = Share Price / Revenue Per Share</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 200 and its revenue per share is Rs. 50, the P/S ratio is 200 / 50 = <strong>4</strong>. Investors are paying Rs. 4 for every Rs. 1 of revenue.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. P/B Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula7">
+                        <span class="item-number">7</span> P/B Ratio (Price-to-Book)
+                    </button>
+                </h2>
+                <div id="formula7" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Price-to-Book ratio compares a stock's market value to its book value (net assets). A P/B below 1 may suggest undervaluation, while a high P/B could indicate the market expects strong future growth.</p>
+                        <div class="formula-box">P/B Ratio = Share Price / Book Value Per Share</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 80 and its book value per share is Rs. 40, the P/B ratio is 80 / 40 = <strong>2</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. P/TBV Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula8">
+                        <span class="item-number">8</span> P/TBV Ratio (Price-to-Tangible Book Value)
+                    </button>
+                </h2>
+                <div id="formula8" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Similar to P/B, but excludes intangible assets like goodwill and patents. It provides a stricter measure of how the market values a company's hard, physical assets.</p>
+                        <div class="formula-box">P/TBV = Share Price / Tangible Book Value Per Share</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 90 and tangible book value per share is Rs. 30, the P/TBV is 90 / 30 = <strong>3</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. P/FCF Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula9">
+                        <span class="item-number">9</span> P/FCF Ratio (Price-to-Free Cash Flow)
+                    </button>
+                </h2>
+                <div id="formula9" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> This ratio compares a stock's price to the free cash flow it generates per share. Free cash flow is the cash remaining after capital expenditures, making this ratio a strong indicator of a company's real value-generating ability.</p>
+                        <div class="formula-box">P/FCF = Share Price / Free Cash Flow Per Share</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 120 and its free cash flow per share is Rs. 12, the P/FCF ratio is 120 / 12 = <strong>10</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. P/OCF Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula10">
+                        <span class="item-number">10</span> P/OCF Ratio (Price-to-Operating Cash Flow)
+                    </button>
+                </h2>
+                <div id="formula10" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> This ratio compares a stock's price to its operating cash flow per share. Operating cash flow focuses on cash generated from core business operations, excluding investing and financing activities.</p>
+                        <div class="formula-box">P/OCF = Share Price / Operating Cash Flow Per Share</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a stock trades at Rs. 100 and operating cash flow per share is Rs. 20, the P/OCF ratio is 100 / 20 = <strong>5</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. PEG Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula11">
+                        <span class="item-number">11</span> PEG Ratio (Price/Earnings-to-Growth)
+                    </button>
+                </h2>
+                <div id="formula11" class="accordion-collapse collapse" data-bs-parent="#valuationRatios">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The PEG ratio adjusts the P/E ratio by accounting for the company's expected earnings growth rate. A PEG below 1 is generally considered undervalued, while above 1 may be overvalued relative to growth.</p>
+                        <div class="formula-box">PEG = P/E Ratio / Annual EPS Growth Rate (%)</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with a P/E of 20 and an expected earnings growth rate of 25% has a PEG of 20 / 25 = <strong>0.8</strong>, suggesting it may be undervalued relative to its growth potential.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== ENTERPRISE METRICS ======================== -->
+        <div class="category-header"><i class="fas fa-building"></i>Enterprise Metrics</div>
+        <div class="accordion" id="enterpriseMetrics">
+
+            <!-- 12. EV/Sales -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula12">
+                        <span class="item-number">12</span> EV/Sales
+                    </button>
+                </h2>
+                <div id="formula12" class="accordion-collapse collapse" data-bs-parent="#enterpriseMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> EV/Sales compares a company's enterprise value to its total revenue. It shows how much the market values each rupee of sales, considering debt and cash positions. Lower values may indicate better value.</p>
+                        <div class="formula-box">EV/Sales = Enterprise Value / Total Revenue</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company has an EV of Rs. 120 billion and annual revenue of Rs. 40 billion, the EV/Sales ratio is 120 / 40 = <strong>3.0x</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13. EV/EBITDA -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula13">
+                        <span class="item-number">13</span> EV/EBITDA
+                    </button>
+                </h2>
+                <div id="formula13" class="accordion-collapse collapse" data-bs-parent="#enterpriseMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> EV/EBITDA compares enterprise value to earnings before interest, taxes, depreciation, and amortization. It is one of the most widely used valuation multiples, especially for comparing companies across different capital structures.</p>
+                        <div class="formula-box">EV/EBITDA = Enterprise Value / EBITDA</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company has an EV of Rs. 150 billion and EBITDA of Rs. 15 billion, the EV/EBITDA is 150 / 15 = <strong>10x</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14. EV/EBIT -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula14">
+                        <span class="item-number">14</span> EV/EBIT
+                    </button>
+                </h2>
+                <div id="formula14" class="accordion-collapse collapse" data-bs-parent="#enterpriseMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> EV/EBIT compares enterprise value to operating earnings (EBIT). Unlike EV/EBITDA, it accounts for depreciation and amortization, making it more conservative and useful for capital-intensive industries.</p>
+                        <div class="formula-box">EV/EBIT = Enterprise Value / EBIT</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company has an EV of Rs. 200 billion and EBIT of Rs. 16 billion, the EV/EBIT is 200 / 16 = <strong>12.5x</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 15. EV/FCF -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula15">
+                        <span class="item-number">15</span> EV/FCF (Enterprise Value to Free Cash Flow)
+                    </button>
+                </h2>
+                <div id="formula15" class="accordion-collapse collapse" data-bs-parent="#enterpriseMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> EV/FCF compares enterprise value to free cash flow. Since free cash flow represents the actual cash available to all capital providers, this ratio is a strong indicator of whether a company is generating enough cash relative to its total value.</p>
+                        <div class="formula-box">EV/FCF = Enterprise Value / Free Cash Flow</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company has an EV of Rs. 100 billion and free cash flow of Rs. 8 billion, the EV/FCF is 100 / 8 = <strong>12.5x</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== LEVERAGE & LIQUIDITY ======================== -->
+        <div class="category-header"><i class="fas fa-balance-scale"></i>Leverage &amp; Liquidity</div>
+        <div class="accordion" id="leverageLiquidity">
+
+            <!-- 16. Debt/Equity Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula16">
+                        <span class="item-number">16</span> Debt/Equity Ratio
+                    </button>
+                </h2>
+                <div id="formula16" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Debt-to-Equity ratio measures how much debt a company uses compared to its shareholders' equity. A higher ratio indicates more leverage, which increases both risk and potential return.</p>
+                        <div class="formula-box">D/E = Total Debt / Shareholders' Equity</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 60 billion in debt and Rs. 40 billion in equity has a D/E ratio of 60 / 40 = <strong>1.5</strong>. This means it uses Rs. 1.50 of debt for every Rs. 1 of equity.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 17. Debt/EBITDA Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula17">
+                        <span class="item-number">17</span> Debt/EBITDA Ratio
+                    </button>
+                </h2>
+                <div id="formula17" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> This ratio measures how many years it would take a company to pay off its debt using EBITDA. A lower ratio means the company can service its debt more easily.</p>
+                        <div class="formula-box">Debt/EBITDA = Total Debt / EBITDA</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 30 billion in debt and EBITDA of Rs. 10 billion has a Debt/EBITDA of 30 / 10 = <strong>3.0x</strong>, meaning it would take 3 years of EBITDA to repay its debt.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 18. Debt/FCF Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula18">
+                        <span class="item-number">18</span> Debt/FCF Ratio
+                    </button>
+                </h2>
+                <div id="formula18" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Debt-to-Free-Cash-Flow ratio shows how many years of free cash flow would be needed to pay off all debt. It is a stricter measure than Debt/EBITDA because FCF accounts for capital expenditures.</p>
+                        <div class="formula-box">Debt/FCF = Total Debt / Free Cash Flow</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 50 billion in debt and Rs. 5 billion in free cash flow has a Debt/FCF of 50 / 5 = <strong>10x</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 19. Asset Turnover -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula19">
+                        <span class="item-number">19</span> Asset Turnover
+                    </button>
+                </h2>
+                <div id="formula19" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Asset Turnover measures how efficiently a company uses its total assets to generate revenue. A higher ratio indicates better efficiency in using assets to produce sales.</p>
+                        <div class="formula-box">Asset Turnover = Total Revenue / Average Total Assets</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 80 billion in revenue and Rs. 100 billion in average total assets has an asset turnover of 80 / 100 = <strong>0.8</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 20. Inventory Turnover -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula20">
+                        <span class="item-number">20</span> Inventory Turnover
+                    </button>
+                </h2>
+                <div id="formula20" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Inventory Turnover shows how many times a company sells and replaces its inventory in a period. A higher ratio indicates efficient inventory management and strong demand.</p>
+                        <div class="formula-box">Inventory Turnover = Cost of Goods Sold / Average Inventory</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If COGS is Rs. 40 billion and average inventory is Rs. 8 billion, inventory turnover is 40 / 8 = <strong>5x</strong>, meaning inventory is sold and restocked 5 times per year.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 21. Quick Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula21">
+                        <span class="item-number">21</span> Quick Ratio (Acid-Test Ratio)
+                    </button>
+                </h2>
+                <div id="formula21" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Quick Ratio measures a company's ability to meet short-term obligations using its most liquid assets (excluding inventory). A ratio above 1 means the company can cover its current liabilities without selling inventory.</p>
+                        <div class="formula-box">Quick Ratio = (Current Assets &minus; Inventory) / Current Liabilities</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If current assets are Rs. 25 billion, inventory is Rs. 5 billion, and current liabilities are Rs. 15 billion, the quick ratio is (25 - 5) / 15 = <strong>1.33</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 22. Current Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula22">
+                        <span class="item-number">22</span> Current Ratio
+                    </button>
+                </h2>
+                <div id="formula22" class="accordion-collapse collapse" data-bs-parent="#leverageLiquidity">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Current Ratio measures a company's ability to pay short-term obligations with its current assets. A ratio above 1 indicates the company has more current assets than current liabilities.</p>
+                        <div class="formula-box">Current Ratio = Current Assets / Current Liabilities</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If current assets are Rs. 30 billion and current liabilities are Rs. 15 billion, the current ratio is 30 / 15 = <strong>2.0</strong>, indicating strong short-term financial health.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== RETURNS ======================== -->
+        <div class="category-header"><i class="fas fa-percentage"></i>Returns</div>
+        <div class="accordion" id="returnsMetrics">
+
+            <!-- 23. ROE -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula23">
+                        <span class="item-number">23</span> Return on Equity (ROE)
+                    </button>
+                </h2>
+                <div id="formula23" class="accordion-collapse collapse" data-bs-parent="#returnsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> ROE measures how effectively a company uses shareholders' equity to generate profit. A higher ROE indicates better profitability relative to the equity invested by shareholders.</p>
+                        <div class="formula-box">ROE = Net Income / Shareholders' Equity &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with net income of Rs. 10 billion and shareholders' equity of Rs. 50 billion has an ROE of (10 / 50) &times; 100 = <strong>20%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 24. ROA -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula24">
+                        <span class="item-number">24</span> Return on Assets (ROA)
+                    </button>
+                </h2>
+                <div id="formula24" class="accordion-collapse collapse" data-bs-parent="#returnsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> ROA shows how efficiently a company uses its assets to generate profit. Unlike ROE, it is not influenced by the company's debt level, making it useful for comparing companies with different capital structures.</p>
+                        <div class="formula-box">ROA = Net Income / Total Assets &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with net income of Rs. 8 billion and total assets of Rs. 100 billion has an ROA of (8 / 100) &times; 100 = <strong>8%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 25. ROIC -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula25">
+                        <span class="item-number">25</span> Return on Invested Capital (ROIC)
+                    </button>
+                </h2>
+                <div id="formula25" class="accordion-collapse collapse" data-bs-parent="#returnsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> ROIC measures how well a company generates returns on all the capital invested in its business, including both debt and equity. It is a key metric for assessing management's ability to allocate capital effectively.</p>
+                        <div class="formula-box">ROIC = NOPAT / Invested Capital &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If NOPAT (Net Operating Profit After Tax) is Rs. 12 billion and invested capital (equity + debt - cash) is Rs. 80 billion, ROIC is (12 / 80) &times; 100 = <strong>15%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 26. ROCE -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula26">
+                        <span class="item-number">26</span> Return on Capital Employed (ROCE)
+                    </button>
+                </h2>
+                <div id="formula26" class="accordion-collapse collapse" data-bs-parent="#returnsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> ROCE evaluates how efficiently a company uses its capital (both equity and debt) to generate operating profits. It is especially useful for comparing companies in capital-intensive industries.</p>
+                        <div class="formula-box">ROCE = EBIT / Capital Employed &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If EBIT is Rs. 18 billion and capital employed (total assets - current liabilities) is Rs. 120 billion, ROCE is (18 / 120) &times; 100 = <strong>15%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== YIELD & SHAREHOLDER ======================== -->
+        <div class="category-header"><i class="fas fa-hand-holding-usd"></i>Yield &amp; Shareholder</div>
+        <div class="accordion" id="yieldShareholder">
+
+            <!-- 27. Earnings Yield -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula27">
+                        <span class="item-number">27</span> Earnings Yield
+                    </button>
+                </h2>
+                <div id="formula27" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Earnings Yield is the inverse of the P/E ratio. It shows how much a company earns relative to its share price, expressed as a percentage. It is useful for comparing stocks to bond yields.</p>
+                        <div class="formula-box">Earnings Yield = EPS / Share Price &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If EPS is Rs. 10 and the share price is Rs. 100, the earnings yield is (10 / 100) &times; 100 = <strong>10%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 28. FCF Yield -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula28">
+                        <span class="item-number">28</span> Free Cash Flow (FCF) Yield
+                    </button>
+                </h2>
+                <div id="formula28" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> FCF Yield measures the free cash flow generated per share relative to the share price. A higher yield suggests the company is generating strong cash flows relative to its market value.</p>
+                        <div class="formula-box">FCF Yield = Free Cash Flow Per Share / Share Price &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If FCF per share is Rs. 8 and the share price is Rs. 100, the FCF yield is (8 / 100) &times; 100 = <strong>8%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 29. Dividend Yield -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula29">
+                        <span class="item-number">29</span> Dividend Yield
+                    </button>
+                </h2>
+                <div id="formula29" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Dividend Yield shows how much a company pays out in dividends each year relative to its stock price. Income-focused investors often look for stocks with a high and sustainable dividend yield.</p>
+                        <div class="formula-box">Dividend Yield = Annual Dividends Per Share / Share Price &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company pays Rs. 5 in annual dividends per share and the stock trades at Rs. 100, the dividend yield is (5 / 100) &times; 100 = <strong>5%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 30. Payout Ratio -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula30">
+                        <span class="item-number">30</span> Payout Ratio
+                    </button>
+                </h2>
+                <div id="formula30" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> The Payout Ratio indicates the proportion of earnings paid out as dividends. A low payout ratio suggests the company retains more earnings for growth, while a high ratio indicates it distributes most profits to shareholders.</p>
+                        <div class="formula-box">Payout Ratio = Dividends Per Share / EPS &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company pays Rs. 4 in dividends per share and EPS is Rs. 10, the payout ratio is (4 / 10) &times; 100 = <strong>40%</strong>, meaning 40% of profits are returned to shareholders.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 31. Buyback Yield / Dilution -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula31">
+                        <span class="item-number">31</span> Buyback Yield / Dilution
+                    </button>
+                </h2>
+                <div id="formula31" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Buyback Yield measures the percentage of a company's market cap returned to shareholders through share repurchases. A positive buyback yield means shares are being retired (value-accretive), while a negative value indicates dilution through new share issuance.</p>
+                        <div class="formula-box">Buyback Yield = (Shares Repurchased &times; Avg Price) / Market Cap &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If a company with a market cap of Rs. 100 billion buys back Rs. 3 billion worth of shares, the buyback yield is (3 / 100) &times; 100 = <strong>3%</strong>. If it issues new shares worth Rs. 2 billion, dilution is <strong>-2%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 32. Total Shareholder Return -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula32">
+                        <span class="item-number">32</span> Total Shareholder Return (TSR)
+                    </button>
+                </h2>
+                <div id="formula32" class="accordion-collapse collapse" data-bs-parent="#yieldShareholder">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> TSR captures the total return to a shareholder, including both capital gains (stock price appreciation) and dividends received. It is the most comprehensive measure of what an investor actually earned.</p>
+                        <div class="formula-box">TSR = ((Ending Price &minus; Beginning Price) + Dividends) / Beginning Price &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> If you bought a stock at Rs. 80, it rose to Rs. 100, and you received Rs. 4 in dividends, TSR is ((100 - 80) + 4) / 80 &times; 100 = <strong>30%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== MARGINS ======================== -->
+        <div class="category-header"><i class="fas fa-chart-bar"></i>Margins</div>
+        <div class="accordion" id="marginsMetrics">
+
+            <!-- 33. Gross Margin -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula33">
+                        <span class="item-number">33</span> Gross Margin
+                    </button>
+                </h2>
+                <div id="formula33" class="accordion-collapse collapse" data-bs-parent="#marginsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Gross Margin shows the percentage of revenue retained after deducting the direct cost of goods sold (COGS). It indicates how efficiently a company produces its goods or delivers its services.</p>
+                        <div class="formula-box">Gross Margin = (Revenue &minus; COGS) / Revenue &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 100 billion in revenue and Rs. 60 billion in COGS has a gross margin of (100 - 60) / 100 &times; 100 = <strong>40%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 34. Operating Margin -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula34">
+                        <span class="item-number">34</span> Operating Margin
+                    </button>
+                </h2>
+                <div id="formula34" class="accordion-collapse collapse" data-bs-parent="#marginsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Operating Margin measures the percentage of revenue remaining after all operating expenses (COGS + SG&amp;A + depreciation). It shows how well management controls costs in day-to-day operations.</p>
+                        <div class="formula-box">Operating Margin = Operating Income (EBIT) / Revenue &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 100 billion in revenue and Rs. 20 billion in operating income has an operating margin of (20 / 100) &times; 100 = <strong>20%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 35. Profit Margin (Net Margin) -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula35">
+                        <span class="item-number">35</span> Profit Margin (Net Margin)
+                    </button>
+                </h2>
+                <div id="formula35" class="accordion-collapse collapse" data-bs-parent="#marginsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> Net Profit Margin is the percentage of revenue that ends up as net income after all expenses, taxes, and interest are deducted. It is the ultimate bottom-line profitability measure.</p>
+                        <div class="formula-box">Net Margin = Net Income / Revenue &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 100 billion in revenue and Rs. 12 billion in net income has a profit margin of (12 / 100) &times; 100 = <strong>12%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 36. FCF Margin -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula36">
+                        <span class="item-number">36</span> Free Cash Flow (FCF) Margin
+                    </button>
+                </h2>
+                <div id="formula36" class="accordion-collapse collapse" data-bs-parent="#marginsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> FCF Margin measures the percentage of revenue converted into free cash flow. It reflects the company's ability to generate real cash from its operations after maintaining or expanding its asset base.</p>
+                        <div class="formula-box">FCF Margin = Free Cash Flow / Revenue &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 100 billion in revenue and Rs. 15 billion in free cash flow has an FCF margin of (15 / 100) &times; 100 = <strong>15%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 37. EBITDA Margin -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#formula37">
+                        <span class="item-number">37</span> EBITDA Margin
+                    </button>
+                </h2>
+                <div id="formula37" class="accordion-collapse collapse" data-bs-parent="#marginsMetrics">
+                    <div class="accordion-body">
+                        <p><strong>Definition:</strong> EBITDA Margin shows the percentage of revenue remaining as EBITDA (Earnings Before Interest, Taxes, Depreciation, and Amortization). It strips out the effects of financing, accounting, and tax decisions, giving a clean view of operational profitability.</p>
+                        <div class="formula-box">EBITDA Margin = EBITDA / Revenue &times; 100</div>
+                        <div class="example-box">
+                            <strong>Example:</strong> A company with Rs. 100 billion in revenue and Rs. 25 billion in EBITDA has an EBITDA margin of (25 / 100) &times; 100 = <strong>25%</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

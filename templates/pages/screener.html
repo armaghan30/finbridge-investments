@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Stock Screener{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header mb-4">
+        <h1>Stock Screener</h1>
+        <p class="text-muted">Discover stocks with our advanced screening tool powered by 30+ performance and risk indicators. Each stock is scored 1-4 across 7 categories to guide smarter investment choices.</p>
+    </div>
+
+    <!-- Score Legend -->
+    <div class="score-legend mb-3">
+        <span class="legend-title"><i class="fas fa-info-circle me-1"></i>Scoring Guide:</span>
+        <span class="legend-item"><span class="score-dot score-1"></span> 1 - Low Risk</span>
+        <span class="legend-item"><span class="score-dot score-2"></span> 2 - Medium</span>
+        <span class="legend-item"><span class="score-dot score-3"></span> 3 - Med-High</span>
+        <span class="legend-item"><span class="score-dot score-4"></span> 4 - High Risk</span>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="card filter-card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Market (PSX only) -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Market</label>
+                    <select id="filterMarket" class="form-select" disabled>
+                        <option value="PSX" selected>PSX</option>
+                    </select>
+                </div>
+
+                <!-- Sector -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Sector</label>
+                    <select id="filterSector" class="form-select">
+                        <option value="">All Sectors</option>
+                        <option value="Oil & Gas">Oil & Gas</option>
+                        <option value="Banking">Banking</option>
+                        <option value="Cement">Cement</option>
+                        <option value="Fertilizer">Fertilizer</option>
+                        <option value="Power">Power</option>
+                        <option value="Automobile">Automobile</option>
+                        <option value="Textile">Textile</option>
+                        <option value="Food & Consumer">Food & Consumer</option>
+                        <option value="Chemicals">Chemicals</option>
+                        <option value="Pharmaceuticals">Pharmaceuticals</option>
+                    </select>
+                </div>
+
+                <!-- Market Cap -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Market Cap</label>
+                    <select id="filterMarketCap" class="form-select">
+                        <option value="">Any</option>
+                        <option value="mega">Mega (PKR 500B+)</option>
+                        <option value="large">Large (PKR 100B-500B)</option>
+                        <option value="mid">Mid (PKR 25B-100B)</option>
+                        <option value="small">Small (PKR 5B-25B)</option>
+                        <option value="micro">Micro (&lt;PKR 5B)</option>
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Price Range</label>
+                    <div class="d-flex gap-1">
+                        <input type="number" id="filterPriceMin" class="form-control" placeholder="Min" min="0">
+                        <input type="number" id="filterPriceMax" class="form-control" placeholder="Max" min="0">
+                    </div>
+                </div>
+
+                <!-- P/E Ratio -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">P/E Ratio</label>
+                    <div class="d-flex gap-1">
+                        <input type="number" id="filterPeMin" class="form-control" placeholder="Min" min="0">
+                        <input type="number" id="filterPeMax" class="form-control" placeholder="Max" min="0">
+                    </div>
+                </div>
+
+                <!-- Dividend Yield -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Dividend Yield %</label>
+                    <div class="d-flex gap-1">
+                        <input type="number" id="filterDivMin" class="form-control" placeholder="Min" min="0" step="0.1">
+                        <input type="number" id="filterDivMax" class="form-control" placeholder="Max" min="0" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <!-- Beta -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Beta</label>
+                    <div class="d-flex gap-1">
+                        <input type="number" id="filterBetaMin" class="form-control" placeholder="Min" min="0" step="0.1">
+                        <input type="number" id="filterBetaMax" class="form-control" placeholder="Max" min="0" step="0.1">
+                    </div>
+                </div>
+
+                <!-- Risk Level Filter -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Risk Level</label>
+                    <select id="filterRisk" class="form-select">
+                        <option value="">Any</option>
+                        <option value="low">Low Risk (1.0-1.5)</option>
+                        <option value="medium">Medium Risk (1.5-2.5)</option>
+                        <option value="medhigh">Med-High (2.5-3.25)</option>
+                        <option value="high">High Risk (3.25+)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-8 d-flex align-items-end gap-2">
+                    <button id="applyFilters" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Screen Stocks
+                    </button>
+                    <button id="resetFilters" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                    <span class="text-muted ms-2" id="resultCount">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover stock-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="symbol">Symbol <i class="fas fa-sort"></i></th>
+                        <th class="sortable" data-sort="name">Company <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="price">Price <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="changePercent">% Change <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="marketCap">Market Cap <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="pe">P/E <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="dividendYield">Div Yield <i class="fas fa-sort"></i></th>
+                        <th class="text-end sortable" data-sort="beta">Beta <i class="fas fa-sort"></i></th>
+                        <th class="text-center sortable" data-sort="overallScore">Score <i class="fas fa-sort"></i></th>
+                        <th>Sector</th>
+                        <th class="text-center" style="width:40px"></th>
+                    </tr>
+                </thead>
+                <tbody id="screenerBody">
+                    <tr><td colspan="11" class="text-center py-5"><div class="spinner-border spinner-border-sm"></div> Loading &amp; scoring 40 stocks...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="text-muted small" id="paginationInfo">--</div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Indicator Detail Modal -->
+<div class="modal fade" id="indicatorModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"><i class="fas fa-chart-bar me-2"></i>Indicator Scorecard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/screener.js') }}"></script>
+{% endblock %}

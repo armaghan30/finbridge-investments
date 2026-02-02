@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block nav_class %}nav-transparent{% endblock %}
+
+{% block content %}
+<!-- Hero Section - Full width skyscraper background -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <h1 class="hero-title">Bringing Wall Street to<br><span class="hero-accent">Every Street</span></h1>
+        <p class="hero-subtitle">Our mission is to bridge the gap between knowledge and capital markets by offering cutting-edge screening tools and a first-of-its-kind Student Managed Investment Fund, fostering financial literacy and confident investing.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('main.screener') }}" class="btn btn-get-started btn-lg me-3">
+                Explore Screener <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+            <a href="{{ url_for('main.learn') }}" class="btn btn-hero-outline btn-lg">
+                Start Learning
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- PSX Market Ticker Strip -->
+<section class="ticker-strip">
+    <div class="ticker-track" id="tickerTrack">
+        <!-- Populated by JS -->
+    </div>
+</section>
+
+<!-- What We Offer -->
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">What We Offer</h2>
+            <p class="section-subtitle">Powerful tools built for the Pakistan Stock Exchange</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <h4>PSX Stock Screener</h4>
+                    <p>Filter Pakistan Stock Exchange listed companies by price, market cap, P/E ratio, dividend yield, sector and more.</p>
+                    <a href="{{ url_for('main.screener') }}" class="offer-link">Try Screener <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Technical Analysis</h4>
+                    <p>13+ technical indicators including RSI, MACD, Bollinger Bands, Stochastic, ATR, OBV and VWAP for PSX stocks.</p>
+                    <a href="{{ url_for('main.screener') }}" class="offer-link">Analyze Stocks <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h4>SMIF</h4>
+                    <p>First-of-its-kind Student Managed Investment Fund - learn real portfolio management with hands-on market experience.</p>
+                    <a href="{{ url_for('main.smif') }}" class="offer-link">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h4>Financial Models</h4>
+                    <p>CAPM, Monte Carlo Simulation, Black-Scholes Options Pricing and Modern Portfolio Theory tools.</p>
+                    <a href="{{ url_for('main.screener') }}" class="offer-link">Explore Models <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>Risk Analytics</h4>
+                    <p>Sharpe Ratio, Sortino, Value at Risk, Maximum Drawdown, Beta and comprehensive risk metrics for every stock.</p>
+                    <a href="{{ url_for('main.screener') }}" class="offer-link">View Risk Tools <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="offer-card">
+                    <div class="offer-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>Financial Literacy</h4>
+                    <p>Educational resources, tutorials and guides to help you understand markets, investing and financial analysis.</p>
+                    <a href="{{ url_for('main.learn') }}" class="offer-link">Start Learning <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PSX Market Overview -->
+<section class="section-padding bg-light-section">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title mb-1">PSX Market Overview</h2>
+                <p class="text-muted mb-0">Pakistan Stock Exchange - Live Data</p>
+            </div>
+            <a href="{{ url_for('main.screener') }}" class="btn btn-outline-dark">View All Stocks <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <ul class="nav nav-pills mb-4" id="marketTabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#gainersTab">
+                    <i class="fas fa-arrow-up text-success me-1"></i>Top Gainers
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#losersTab">
+                    <i class="fas fa-arrow-down text-danger me-1"></i>Top Losers
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#activeTab">
+                    <i class="fas fa-fire text-warning me-1"></i>Most Active
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="gainersTab">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover stock-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th><th>Name</th>
+                                    <th class="text-end">Price (PKR)</th>
+                                    <th class="text-end">Change</th>
+                                    <th class="text-end">% Change</th>
+                                    <th class="text-end">Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gainersBody">
+                                <tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm"></div> Loading PSX data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="losersTab">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover stock-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th><th>Name</th>
+                                    <th class="text-end">Price (PKR)</th>
+                                    <th class="text-end">Change</th>
+                                    <th class="text-end">% Change</th>
+                                    <th class="text-end">Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody id="losersBody">
+                                <tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="activeTab">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover stock-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th><th>Name</th>
+                                    <th class="text-end">Price (PKR)</th>
+                                    <th class="text-end">Change</th>
+                                    <th class="text-end">% Change</th>
+                                    <th class="text-end">Volume</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activeBody">
+                                <tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm"></div> Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular PSX Stocks -->
+<section class="section-padding">
+    <div class="container">
+        <h2 class="section-title mb-4">Popular PSX Stocks</h2>
+        <div class="row g-3" id="popularStocks">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2>Ready to Start Investing?</h2>
+        <p class="mb-4">Get free access to our PSX screener, technical analysis tools and financial models.</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-get-started btn-lg">Get Started Free</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}
