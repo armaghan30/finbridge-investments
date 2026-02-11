@@ -17,8 +17,8 @@
         <span class="legend-item"><span class="score-dot score-4"></span> 4 - High Risk</span>
     </div>
 
-    <!-- Filters Panel -->
-    <div class="card filter-card mb-4">
+    <!-- Basic Filters Panel -->
+    <div class="card filter-card mb-3">
         <div class="card-body">
             <div class="row g-3">
                 <!-- Market (PSX only) -->
@@ -69,35 +69,6 @@
                     </div>
                 </div>
 
-                <!-- P/E Ratio -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">P/E Ratio</label>
-                    <div class="d-flex gap-1">
-                        <input type="number" id="filterPeMin" class="form-control" placeholder="Min" min="0">
-                        <input type="number" id="filterPeMax" class="form-control" placeholder="Max" min="0">
-                    </div>
-                </div>
-
-                <!-- Dividend Yield -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">Dividend Yield %</label>
-                    <div class="d-flex gap-1">
-                        <input type="number" id="filterDivMin" class="form-control" placeholder="Min" min="0" step="0.1">
-                        <input type="number" id="filterDivMax" class="form-control" placeholder="Max" min="0" step="0.1">
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3 mt-1">
-                <!-- Beta -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">Beta</label>
-                    <div class="d-flex gap-1">
-                        <input type="number" id="filterBetaMin" class="form-control" placeholder="Min" min="0" step="0.1">
-                        <input type="number" id="filterBetaMax" class="form-control" placeholder="Max" min="0" step="0.1">
-                    </div>
-                </div>
-
                 <!-- Risk Level Filter -->
                 <div class="col-md-2">
                     <label class="form-label fw-semibold">Risk Level</label>
@@ -110,17 +81,246 @@
                     </select>
                 </div>
 
-                <div class="col-md-8 d-flex align-items-end gap-2">
-                    <button id="applyFilters" class="btn btn-primary">
-                        <i class="fas fa-search me-1"></i>Screen Stocks
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button id="applyFilters" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-search me-1"></i>Screen
                     </button>
-                    <button id="resetFilters" class="btn btn-outline-secondary">
-                        <i class="fas fa-undo me-1"></i>Reset
+                    <button id="resetFilters" class="btn btn-outline-secondary" title="Reset All Filters">
+                        <i class="fas fa-undo"></i>
                     </button>
-                    <span class="text-muted ms-2" id="resultCount">--</span>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Advanced Indicator Filters (Collapsible) -->
+    <div class="card advanced-filters-card mb-4">
+        <div class="card-header advanced-filters-header" data-bs-toggle="collapse" data-bs-target="#advancedFilters" role="button">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-sliders-h me-2"></i>Advanced Indicator Filters <span class="badge bg-primary ms-2" id="activeFiltersCount" style="display:none;">0</span></span>
+                <span class="text-muted small"><i class="fas fa-chevron-down collapse-icon"></i></span>
+            </div>
+        </div>
+        <div class="collapse" id="advancedFilters">
+            <div class="card-body">
+                <!-- Valuation Metrics -->
+                <div class="filter-category mb-4">
+                    <h6 class="filter-cat-title"><i class="fas fa-tags me-2"></i>Valuation Metrics</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">P/E Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterPeMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterPeMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">P/B Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterPbMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterPbMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">P/S Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterPsMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterPsMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">EV/EBITDA</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterEvEbitdaMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterEvEbitdaMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">PEG Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterPegMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterPegMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Earnings Yield %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterEarningsYieldMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterEarningsYieldMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profitability & Returns -->
+                <div class="filter-category mb-4">
+                    <h6 class="filter-cat-title"><i class="fas fa-chart-line me-2"></i>Profitability & Returns</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">ROE %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterRoeMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterRoeMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">ROA %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterRoaMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterRoaMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Net Profit Margin %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterNetMarginMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterNetMarginMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Gross Margin %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterGrossMarginMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterGrossMarginMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Operating Margin %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterOpMarginMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterOpMarginMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Dividend Yield %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterDivMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterDivMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Growth Metrics -->
+                <div class="filter-category mb-4">
+                    <h6 class="filter-cat-title"><i class="fas fa-rocket me-2"></i>Growth Metrics</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Revenue Growth %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterRevGrowthMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterRevGrowthMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">EPS Growth %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterEpsGrowthMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterEpsGrowthMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Free Cash Flow</label>
+                            <select id="filterFcf" class="form-select form-select-sm">
+                                <option value="">Any</option>
+                                <option value="positive">Positive Only</option>
+                                <option value="negative">Negative Only</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk & Volatility -->
+                <div class="filter-category mb-4">
+                    <h6 class="filter-cat-title"><i class="fas fa-shield-alt me-2"></i>Risk & Volatility</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Beta</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterBetaMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterBetaMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Sharpe Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterSharpeMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterSharpeMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Sortino Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterSortinoMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterSortinoMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Altman Z-Score</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterAltmanMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterAltmanMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Std Deviation %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterStdDevMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterStdDevMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liquidity & Leverage -->
+                <div class="filter-category">
+                    <h6 class="filter-cat-title"><i class="fas fa-balance-scale me-2"></i>Liquidity & Leverage</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Current Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterCurrentRatioMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterCurrentRatioMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Quick Ratio</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterQuickRatioMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterQuickRatioMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Debt/Equity %</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterDebtEquityMin" class="form-control form-control-sm" placeholder="Min" step="1">
+                                <input type="number" id="filterDebtEquityMax" class="form-control form-control-sm" placeholder="Max" step="1">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Interest Coverage</label>
+                            <div class="d-flex gap-1">
+                                <input type="number" id="filterIntCoverageMin" class="form-control form-control-sm" placeholder="Min" step="0.1">
+                                <input type="number" id="filterIntCoverageMax" class="form-control form-control-sm" placeholder="Max" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clear Advanced Filters -->
+                <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small"><i class="fas fa-lightbulb me-1"></i>Tip: Leave fields empty for "any value". Use both Min and Max to set a range.</span>
+                    <button id="clearAdvancedFilters" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-times me-1"></i>Clear Advanced Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted" id="resultCount">--</span>
     </div>
 
     <!-- Results Table -->

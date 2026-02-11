@@ -21,3 +21,10 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Database
+*.db
+instance/
+
+# Logs
+*.log

@@ -1,4 +1,4 @@
-/* Screener page JS - with 30 Indicator Scoring System */
+/* Screener page JS - with 30 Indicator Scoring System + Advanced Filters */
 
 let currentSort = { by: 'marketCap', dir: 'desc' };
 let currentPage = 1;
@@ -21,11 +21,44 @@ const CATEGORY_ICONS = {
     'Volatility': 'fas fa-bolt'
 };
 
+// Advanced filter field mappings: input ID prefix -> indicator key in data
+const ADVANCED_FILTER_MAP = {
+    // Valuation
+    'filterPe': { key: 'peRatio', path: 'indicators.peRatio.value' },
+    'filterPb': { key: 'pbRatio', path: 'indicators.pbRatio.value' },
+    'filterPs': { key: 'psRatio', path: 'indicators.psRatio.value' },
+    'filterEvEbitda': { key: 'evEbitda', path: 'indicators.evEbitda.value' },
+    'filterPeg': { key: 'pegRatio', path: 'indicators.pegRatio.value' },
+    'filterEarningsYield': { key: 'earningsYield', path: 'indicators.earningsYield.value' },
+    // Profitability
+    'filterRoe': { key: 'roe', path: 'indicators.roe.value' },
+    'filterRoa': { key: 'roa', path: 'indicators.roa.value' },
+    'filterNetMargin': { key: 'netProfitMargin', path: 'indicators.netProfitMargin.value' },
+    'filterGrossMargin': { key: 'grossMargin', path: 'indicators.grossMargin.value' },
+    'filterOpMargin': { key: 'operatingMargin', path: 'indicators.operatingMargin.value' },
+    'filterDiv': { key: 'dividendYield', path: 'dividendYield' },
+    // Growth
+    'filterRevGrowth': { key: 'revenueGrowth', path: 'indicators.revenueGrowth.value' },
+    'filterEpsGrowth': { key: 'epsGrowth', path: 'indicators.epsGrowth.value' },
+    // Risk
+    'filterBeta': { key: 'beta', path: 'beta' },
+    'filterSharpe': { key: 'sharpeRatio', path: 'indicators.sharpeRatio.value' },
+    'filterSortino': { key: 'sortinoRatio', path: 'indicators.sortinoRatio.value' },
+    'filterAltman': { key: 'altmanZ', path: 'indicators.altmanZ.value' },
+    'filterStdDev': { key: 'stdDeviation', path: 'indicators.stdDeviation.value' },
+    // Liquidity/Leverage
+    'filterCurrentRatio': { key: 'currentRatio', path: 'indicators.currentRatio.value' },
+    'filterQuickRatio': { key: 'quickRatio', path: 'indicators.quickRatio.value' },
+    'filterDebtEquity': { key: 'debtToEquity', path: 'indicators.debtToEquity.value' },
+    'filterIntCoverage': { key: 'interestCoverage', path: 'indicators.interestCoverage.value' },
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     loadScreener();
 
     document.getElementById('applyFilters').addEventListener('click', () => { currentPage = 1; loadScreener(); });
     document.getElementById('resetFilters').addEventListener('click', resetFilters);
+    document.getElementById('clearAdvancedFilters').addEventListener('click', clearAdvancedFilters);
 
     // Sortable headers
     document.querySelectorAll('.sortable').forEach(th => {
@@ -39,7 +72,42 @@ document.addEventListener('DOMContentLoaded', () => {
             loadScreener();
         });
     });
+
+    // Track advanced filter changes for badge count
+    document.querySelectorAll('#advancedFilters input, #advancedFilters select').forEach(el => {
+        el.addEventListener('change', updateActiveFiltersCount);
+        el.addEventListener('input', updateActiveFiltersCount);
+    });
+
+    // Collapse icon rotation
+    const advHeader = document.querySelector('.advanced-filters-header');
+    const advCollapse = document.getElementById('advancedFilters');
+    if (advHeader && advCollapse) {
+        advCollapse.addEventListener('show.bs.collapse', () => {
+            advHeader.querySelector('.collapse-icon').style.transform = 'rotate(180deg)';
+        });
+        advCollapse.addEventListener('hide.bs.collapse', () => {
+            advHeader.querySelector('.collapse-icon').style.transform = 'rotate(0deg)';
+        });
+    }
 });
+
+function updateActiveFiltersCount() {
+    let count = 0;
+    document.querySelectorAll('#advancedFilters input').forEach(el => {
+        if (el.value && el.value.trim() !== '') count++;
+    });
+    document.querySelectorAll('#advancedFilters select').forEach(el => {
+        if (el.value && el.value !== '') count++;
+    });
+    const badge = document.getElementById('activeFiltersCount');
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline';
+    } else {
+        badge.style.display = 'none';
+    }
+}
 
 function getFilters() {
     const f = {
@@ -56,15 +124,72 @@ function getFilters() {
     add('filterMarketCap', 'market_cap');
     add('filterPriceMin', 'price_min');
     add('filterPriceMax', 'price_max');
-    add('filterPeMin', 'pe_min');
-    add('filterPeMax', 'pe_max');
-    add('filterDivMin', 'div_min');
-    add('filterDivMax', 'div_max');
-    add('filterBetaMin', 'beta_min');
-    add('filterBetaMax', 'beta_max');
     add('filterRisk', 'risk_level');
 
     return f;
+}
+
+// Get advanced indicator filters
+function getAdvancedFilters() {
+    const filters = {};
+    for (const prefix of Object.keys(ADVANCED_FILTER_MAP)) {
+        const minEl = document.getElementById(prefix + 'Min');
+        const maxEl = document.getElementById(prefix + 'Max');
+        if (minEl && minEl.value !== '') {
+            filters[prefix + '_min'] = parseFloat(minEl.value);
+        }
+        if (maxEl && maxEl.value !== '') {
+            filters[prefix + '_max'] = parseFloat(maxEl.value);
+        }
+    }
+    // FCF select
+    const fcfEl = document.getElementById('filterFcf');
+    if (fcfEl && fcfEl.value) {
+        filters['fcf'] = fcfEl.value;
+    }
+    return filters;
+}
+
+// Get value from nested path like 'indicators.peRatio.value'
+function getNestedValue(obj, path) {
+    const parts = path.split('.');
+    let val = obj;
+    for (const p of parts) {
+        if (val === null || val === undefined) return null;
+        val = val[p];
+    }
+    return val;
+}
+
+// Apply advanced filters client-side
+function applyAdvancedFilters(results, advFilters) {
+    if (Object.keys(advFilters).length === 0) return results;
+
+    return results.filter(stock => {
+        // FCF filter
+        if (advFilters.fcf) {
+            const fcfVal = getNestedValue(stock, 'indicators.freeCashFlow.value');
+            if (advFilters.fcf === 'positive' && (fcfVal === null || fcfVal <= 0)) return false;
+            if (advFilters.fcf === 'negative' && (fcfVal === null || fcfVal >= 0)) return false;
+        }
+
+        // Min/Max range filters
+        for (const prefix of Object.keys(ADVANCED_FILTER_MAP)) {
+            const config = ADVANCED_FILTER_MAP[prefix];
+            const minKey = prefix + '_min';
+            const maxKey = prefix + '_max';
+
+            if (advFilters[minKey] !== undefined || advFilters[maxKey] !== undefined) {
+                const val = getNestedValue(stock, config.path);
+                if (val === null || val === undefined) return false;
+
+                if (advFilters[minKey] !== undefined && val < advFilters[minKey]) return false;
+                if (advFilters[maxKey] !== undefined && val > advFilters[maxKey]) return false;
+            }
+        }
+
+        return true;
+    });
 }
 
 function scoreClass(score) {
@@ -95,6 +220,8 @@ async function loadScreener() {
 
     try {
         const filters = getFilters();
+        const advFilters = getAdvancedFilters();
+
         const res = await Utils.fetchJSON('/api/screener', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -116,6 +243,17 @@ async function loadScreener() {
             const ranges = { low: [0, 1.5], medium: [1.5, 2.5], medhigh: [2.5, 3.25], high: [3.25, 5] };
             const [lo, hi] = ranges[riskFilter] || [0, 5];
             results = results.filter(s => s.overallScore >= lo && s.overallScore < hi);
+        }
+
+        // Apply advanced indicator filters (client-side)
+        results = applyAdvancedFilters(results, advFilters);
+
+        if (results.length === 0) {
+            body.innerHTML = '<tr><td colspan="11" class="text-center py-5 text-muted">No stocks match your indicator criteria. Try adjusting advanced filters.</td></tr>';
+            document.getElementById('resultCount').textContent = '0 results';
+            document.getElementById('paginationInfo').textContent = '';
+            document.getElementById('pagination').innerHTML = '';
+            return;
         }
 
         allResults = results;
@@ -140,15 +278,18 @@ async function loadScreener() {
             </tr>
         `).join('');
 
-        document.getElementById('resultCount').textContent = `${res.total} results`;
+        document.getElementById('resultCount').textContent = `${results.length} stocks found`;
 
         // Pagination info
-        const start = (res.page - 1) * res.per_page + 1;
-        const end = Math.min(res.page * res.per_page, res.total);
-        document.getElementById('paginationInfo').textContent = `Showing ${start}-${end} of ${res.total}`;
+        const total = results.length;
+        const perPage = 25;
+        const totalPages = Math.ceil(total / perPage);
+        const start = (currentPage - 1) * perPage + 1;
+        const end = Math.min(currentPage * perPage, total);
+        document.getElementById('paginationInfo').textContent = `Showing ${start}-${end} of ${total}`;
 
         // Pagination buttons
-        renderPagination(res.page, res.pages);
+        renderPagination(currentPage, totalPages);
 
         // Attach indicator button listeners
         document.querySelectorAll('.view-indicators-btn').forEach(btn => {
@@ -286,15 +427,25 @@ function renderPagination(current, total) {
     });
 }
 
+function clearAdvancedFilters() {
+    document.querySelectorAll('#advancedFilters input').forEach(el => el.value = '');
+    document.querySelectorAll('#advancedFilters select').forEach(el => el.value = '');
+    updateActiveFiltersCount();
+    loadScreener();
+}
+
 function resetFilters() {
+    // Basic filters
     if (document.getElementById('filterMarket')) document.getElementById('filterMarket').value = 'PSX';
     document.getElementById('filterSector').value = '';
     document.getElementById('filterMarketCap').value = '';
     document.getElementById('filterRisk').value = '';
-    ['filterPriceMin', 'filterPriceMax', 'filterPeMin', 'filterPeMax',
-     'filterDivMin', 'filterDivMax', 'filterBetaMin', 'filterBetaMax'].forEach(id => {
-        document.getElementById(id).value = '';
-    });
+    document.getElementById('filterPriceMin').value = '';
+    document.getElementById('filterPriceMax').value = '';
+
+    // Clear all advanced filters
+    clearAdvancedFilters();
+
     currentSort = { by: 'marketCap', dir: 'desc' };
     currentPage = 1;
     loadScreener();
