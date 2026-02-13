@@ -267,6 +267,3 @@ For support and questions:
 
 ---
 
-**Built with ❤️ by Armaghan Tariq**
-
-*Advanced Financial Analytics & Market Screener Platform* 
