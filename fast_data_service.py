@@ -93,21 +93,28 @@ class FastDataService:
         else:
             timestamps = pd.date_range(start=start_dt, end=end_dt, freq='D')
 
-        # Generate realistic price data
+        # Generate realistic price data — seed from ticker for consistency
+        ticker_seed = abs(hash(ticker)) % (2**32)
         prices = self._generate_price_series(
             stock_info['base_price'],
             stock_info['volatility'],
             stock_info['trend'],
-            len(timestamps)
+            len(timestamps),
+            seed=ticker_seed
         )
 
-        # Create DataFrame
+        # Create DataFrame — use seeded rng for OHLC spreads and volume
+        vol_rng = np.random.default_rng(ticker_seed + 1)
+        n = len(prices)
+        highs = [prices[i] * (1 + abs(float(vol_rng.normal(0, 0.01)))) for i in range(n)]
+        lows  = [prices[i] * (1 - abs(float(vol_rng.normal(0, 0.01)))) for i in range(n)]
+        vols  = [int(vol_rng.uniform(1000000, 10000000)) for _ in range(n)]
         data = pd.DataFrame({
             'Open': prices,
-            'High': [p * (1 + abs(np.random.normal(0, 0.01))) for p in prices],
-            'Low': [p * (1 - abs(np.random.normal(0, 0.01))) for p in prices],
+            'High': highs,
+            'Low': lows,
             'Close': prices,
-            'Volume': [int(np.random.uniform(1000000, 10000000)) for _ in prices]
+            'Volume': vols,
         }, index=timestamps)
 
         # Add market info
@@ -121,37 +128,36 @@ class FastDataService:
         self.stock_data_cache[cache_key] = data
         return data
 
-    def _generate_price_series(self, base_price, volatility, trend, length):
-        """Generate realistic price series using geometric Brownian motion"""
+    def _generate_price_series(self, base_price, volatility, trend, length, seed=42):
+        """Generate realistic price series using geometric Brownian motion — seeded for consistency"""
+        rng = np.random.default_rng(seed)
         prices = [base_price]
 
         for i in range(1, length):
-            # Add trend and volatility
-            change = np.random.normal(trend, volatility)
+            change = rng.normal(trend, volatility)
             new_price = prices[-1] * (1 + change)
-
-            # Ensure price doesn't go negative
             new_price = max(new_price, base_price * 0.1)
             prices.append(new_price)
 
         return prices
 
     def get_stock_info(self, ticker):
-        """Get current stock information"""
+        """Get current stock information — deterministic per ticker"""
         stock_info = self.market_data['PSX'].get(ticker, {
             'base_price': 100.0, 'volatility': 0.02, 'trend': 0.001
         })
 
+        rng = np.random.default_rng(abs(hash(ticker)) % (2**32))
         current_price = stock_info['base_price']
-        change_percent = np.random.normal(0, 2)  # Random change between -2% and +2%
+        change_percent = float(rng.normal(0, 2))
 
         return {
             'current_price': current_price,
             'change': change_percent,
-            'volume': int(np.random.uniform(1000000, 10000000)),
-            'market_cap': float(current_price * np.random.uniform(1e6, 1e9)),
-            'high_52w': float(current_price * (1 + np.random.uniform(0.1, 0.3))),
-            'low_52w': float(current_price * (1 - np.random.uniform(0.1, 0.3))),
+            'volume': int(rng.uniform(1000000, 10000000)),
+            'market_cap': float(current_price * rng.uniform(1e6, 1e9)),
+            'high_52w': float(current_price * (1 + rng.uniform(0.1, 0.3))),
+            'low_52w': float(current_price * (1 - rng.uniform(0.1, 0.3))),
             'currency': 'PKR'
         }
 

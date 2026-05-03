@@ -114,8 +114,8 @@ function getFilters() {
         market: document.getElementById('filterMarket') ? document.getElementById('filterMarket').value : 'PSX',
         sort_by: currentSort.by,
         sort_dir: currentSort.dir,
-        page: currentPage,
-        per_page: 25,
+        page: 1,
+        per_page: 9999, // fetch all; client handles pagination
         include_indicators: true,
     };
 
@@ -124,7 +124,8 @@ function getFilters() {
     add('filterMarketCap', 'market_cap');
     add('filterPriceMin', 'price_min');
     add('filterPriceMax', 'price_max');
-    add('filterRisk', 'risk_level');
+    // Note: risk_level is NOT sent to backend — it is applied client-side only
+    // so the backend cache key stays consistent regardless of risk filter selection
 
     return f;
 }
@@ -236,13 +237,18 @@ async function loadScreener() {
             return;
         }
 
-        // Client-side risk level filter
+        // Client-side risk level filter (read directly from DOM, not from API filters)
         let results = res.results;
-        const riskFilter = filters.risk_level;
+        const riskEl = document.getElementById('filterRisk');
+        const riskFilter = riskEl ? riskEl.value : '';
         if (riskFilter) {
             const ranges = { low: [0, 1.5], medium: [1.5, 2.5], medhigh: [2.5, 3.25], high: [3.25, 5] };
-            const [lo, hi] = ranges[riskFilter] || [0, 5];
-            results = results.filter(s => s.overallScore >= lo && s.overallScore < hi);
+            const range = ranges[riskFilter];
+            if (range) {
+                const [lo, hi] = range;
+                // Explicitly exclude null/undefined overallScore stocks when a specific risk filter is active
+                results = results.filter(s => s.overallScore != null && s.overallScore >= lo && s.overallScore < hi);
+            }
         }
 
         // Apply advanced indicator filters (client-side)
@@ -258,7 +264,19 @@ async function loadScreener() {
 
         allResults = results;
 
-        body.innerHTML = results.map((s, idx) => `
+        // Client-side pagination
+        const perPage = 25;
+        const total = results.length;
+        const totalPages = Math.ceil(total / perPage);
+        // Clamp currentPage in case filtering reduced the total
+        if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+        const startIdx = (currentPage - 1) * perPage;
+        const endIdx = Math.min(currentPage * perPage, total);
+        const pageResults = results.slice(startIdx, endIdx);
+
+        body.innerHTML = pageResults.map((s, i) => {
+            const idx = startIdx + i; // index into allResults
+            return `
             <tr class="screener-row" data-idx="${idx}">
                 <td><a href="/stocks/${s.symbol}" class="stock-link">${s.symbol}</a></td>
                 <td>${s.name}</td>
@@ -275,18 +293,13 @@ async function loadScreener() {
                         <i class="fas fa-chart-bar"></i>
                     </button>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
 
-        document.getElementById('resultCount').textContent = `${results.length} stocks found`;
+        document.getElementById('resultCount').textContent = `${total} stocks found`;
 
-        // Pagination info
-        const total = results.length;
-        const perPage = 25;
-        const totalPages = Math.ceil(total / perPage);
-        const start = (currentPage - 1) * perPage + 1;
-        const end = Math.min(currentPage * perPage, total);
-        document.getElementById('paginationInfo').textContent = `Showing ${start}-${end} of ${total}`;
+        const displayStart = total === 0 ? 0 : startIdx + 1;
+        document.getElementById('paginationInfo').textContent = `Showing ${displayStart}–${endIdx} of ${total}`;
 
         // Pagination buttons
         renderPagination(currentPage, totalPages);

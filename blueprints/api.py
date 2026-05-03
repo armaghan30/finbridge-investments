@@ -19,7 +19,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 # ---------- Cache ----------
 _cache = {}
-CACHE_TTL = 300
+CACHE_TTL = 900  # 15 minutes cache for better performance
 
 def _get(key):
     if key in _cache:
@@ -30,6 +30,23 @@ def _get(key):
 
 def _set(key, data):
     _cache[key] = (time.time(), data)
+
+def _convert_nan_to_none(obj):
+    """Recursively convert NaN/inf values to None for JSON serialization"""
+    if isinstance(obj, dict):
+        return {k: _convert_nan_to_none(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_convert_nan_to_none(v) for v in obj]
+    elif isinstance(obj, float):
+        if pd.isna(obj) or np.isinf(obj):
+            return None
+        return obj
+    elif isinstance(obj, (np.floating, np.integer)):
+        val = float(obj) if isinstance(obj, np.floating) else int(obj)
+        if isinstance(val, float) and (pd.isna(val) or np.isinf(val)):
+            return None
+        return val
+    return obj
 
 # ---------- Market Config (PSX Only) ----------
 MARKETS = {
@@ -178,60 +195,74 @@ def _get_stock_info(ticker):
             return info
         return None
 
-    try:
-        if is_psx:
-            info = _try_psx_fetch(ticker, _do_info)
-        else:
-            info = _do_info(ticker)
-
-        if info:
-            info['symbol'] = ticker
-            info['exchange'] = 'PSX' if is_psx else _find_market(ticker)
-            info['currency'] = 'PKR'
-            _set(ckey, info)
-            return info
-    except Exception:
-        pass
-
-    # generate demo info
+    # Generate demo info as a fallback template
     market = _find_market(ticker)
     name = _all_tickers().get(ticker, ticker)
-    base = random.uniform(20, 800)
-    chg = random.uniform(-5, 5)
-    info = {
+    rng = random.Random(hash(ticker) & 0x7FFFFFFF)
+    base = rng.uniform(20, 800)
+    chg = rng.uniform(-5, 5)
+    demo_info = {
         'symbol': ticker,
         'shortName': name,
         'longName': name,
         'currentPrice': round(base, 2),
         'previousClose': round(base * (1 - chg / 100), 2),
-        'open': round(base * (1 + random.uniform(-0.02, 0.02)), 2),
+        'open': round(base * (1 + rng.uniform(-0.02, 0.02)), 2),
         'dayHigh': round(base * 1.02, 2),
         'dayLow': round(base * 0.98, 2),
-        'volume': random.randint(1_000_000, 80_000_000),
-        'averageVolume': random.randint(5_000_000, 50_000_000),
-        'marketCap': int(base * random.uniform(1e8, 1e10)),
-        'trailingPE': round(random.uniform(5, 60), 2),
-        'forwardPE': round(random.uniform(5, 45), 2),
-        'dividendYield': round(random.uniform(0, 0.05), 4),
-        'beta': round(random.uniform(0.5, 2.0), 2),
+        'volume': rng.randint(1_000_000, 80_000_000),
+        'averageVolume': rng.randint(5_000_000, 50_000_000),
+        'marketCap': int(base * rng.uniform(1e8, 1e10)),
+        'trailingPE': round(rng.uniform(5, 60), 2),
+        'forwardPE': round(rng.uniform(5, 45), 2),
+        'dividendYield': round(rng.uniform(0, 0.05), 4),
+        'beta': round(rng.uniform(0.5, 2.0), 2),
         'fiftyTwoWeekHigh': round(base * 1.3, 2),
         'fiftyTwoWeekLow': round(base * 0.7, 2),
         'fiftyDayAverage': round(base * 1.02, 2),
         'twoHundredDayAverage': round(base * 0.98, 2),
-        'trailingEps': round(random.uniform(1, 20), 2),
-        'priceToBook': round(random.uniform(1, 15), 2),
-        'profitMargins': round(random.uniform(0.05, 0.35), 4),
-        'returnOnEquity': round(random.uniform(0.05, 0.40), 4),
-        'debtToEquity': round(random.uniform(10, 200), 2),
-        'freeCashflow': int(random.uniform(1e8, 5e10)),
-        'revenue': int(random.uniform(1e9, 4e11)),
-        'revenueGrowth': round(random.uniform(-0.1, 0.4), 4),
-        'earningsGrowth': round(random.uniform(-0.15, 0.5), 4),
+        'trailingEps': round(rng.uniform(1, 20), 2),
+        'priceToBook': round(rng.uniform(1, 15), 2),
+        'profitMargins': round(rng.uniform(0.05, 0.35), 4),
+        'returnOnEquity': round(rng.uniform(0.05, 0.40), 4),
+        'returnOnAssets': round(rng.uniform(0.02, 0.20), 4),
+        'grossMargins': round(rng.uniform(0.15, 0.60), 4),
+        'operatingMargins': round(rng.uniform(0.05, 0.35), 4),
+        'currentRatio': round(rng.uniform(0.8, 3.0), 2),
+        'quickRatio': round(rng.uniform(0.5, 2.5), 2),
+        'interestCoverage': round(rng.uniform(1.0, 10.0), 2),
+        'enterpriseToEbitda': round(rng.uniform(4, 20), 2),
+        'pegRatio': round(rng.uniform(0.5, 3.0), 2),
+        'debtToEquity': round(rng.uniform(10, 200), 2),
+        'freeCashflow': int(rng.uniform(1e8, 5e10)),
+        'revenue': int(rng.uniform(1e9, 4e11)),
+        'revenueGrowth': round(rng.uniform(-0.1, 0.4), 4),
+        'earningsGrowth': round(rng.uniform(-0.15, 0.5), 4),
         'sector': SECTOR_MAP.get(ticker, 'Technology'),
         'industry': 'Various',
         'exchange': market,
         'currency': 'PKR',
     }
+
+    # Try to fetch real data from yfinance and merge with demo data
+    try:
+        if is_psx:
+            real_info = _try_psx_fetch(ticker, _do_info)
+        else:
+            real_info = _do_info(ticker)
+
+        if real_info:
+            # Merge: real data takes precedence, demo data fills in missing fields
+            demo_info.update(real_info)
+    except Exception:
+        pass
+
+    # Final result: use merged info (real + demo) or just demo if fetch failed
+    info = demo_info
+    info['symbol'] = ticker
+    info['exchange'] = 'PSX' if is_psx else market
+    info['currency'] = 'PKR'
+
     _set(ckey, info)
     return info
 
@@ -450,8 +481,10 @@ def _calculate_all_indicators(info, hist_data=None):
     # Computed metrics
     ps_ratio = (mcap / revenue) if revenue > 0 else 0
     earnings_yield = (eps / price * 100) if price > 0 else 0
-    div_growth = random.uniform(-2, 15)  # Simulated
     asset_turnover = (revenue / mcap * 2) if mcap > 0 else 0
+    # Deterministic simulated values keyed by ticker so they never change between calls
+    _rng = random.Random(hash(info.get('symbol', 'X') + 'growth') & 0x7FFFFFFF)
+    div_growth = _rng.uniform(-2, 15)
 
     # Historical data calculations
     change_1y = 0
@@ -475,8 +508,9 @@ def _calculate_all_indicators(info, hist_data=None):
             treynor = (ann_return - 10) / beta if beta > 0 else 0
             var_95 = float(np.percentile(returns, 5)) * 100
 
-    # EPS Growth (simulated 5Y CAGR)
-    eps_growth = random.uniform(-5, 25)
+    # EPS Growth (simulated 5Y CAGR) — deterministic per ticker
+    _rng2 = random.Random(hash(info.get('symbol', 'X') + 'eps') & 0x7FFFFFFF)
+    eps_growth = _rng2.uniform(-5, 25)
 
     # Altman Z-Score (simplified)
     altman_z = 1.2 * (current_ratio * 0.3) + 1.4 * (roe / 100) + 3.3 * (profit_margin / 100) + 0.6 * (mcap / max(debt_equity * mcap / 100, 1)) + 1.0 * asset_turnover
@@ -706,94 +740,114 @@ def screener():
     per_page = int(filters.get('per_page', 25))
     include_indicators = filters.get('include_indicators', True)
 
-    stocks = MARKETS.get(market, MARKETS['PSX'])['stocks']
-    results = []
+    # Create cache key from filters (excluding pagination params)
+    filter_key = tuple(sorted((k, v) for k, v in filters.items() if k not in ['page', 'per_page']))
+    cache_key = f"screener:{market}:{sort_by}:{sort_dir}:{filter_key}"
 
-    for ticker, name in stocks.items():
-        info = _get_stock_info(ticker)
-        price = info.get('currentPrice', 0)
-        prev = info.get('previousClose', price)
-        change = price - prev
-        change_pct = (change / prev * 100) if prev else 0
-        mcap = info.get('marketCap', 0)
-        pe = info.get('trailingPE', 0)
-        div_yield = (info.get('dividendYield') or 0) * 100
-        beta = info.get('beta', 1.0)
-        vol = info.get('volume', 0)
-        sector = info.get('sector', SECTOR_MAP.get(ticker, ''))
-
-        # Apply filters
-        if 'price_min' in filters and price < float(filters['price_min']):
-            continue
-        if 'price_max' in filters and price > float(filters['price_max']):
-            continue
-        if 'market_cap' in filters and filters['market_cap']:
-            mc_ranges = {
-                'micro': (0, 3e8), 'small': (3e8, 2e9), 'mid': (2e9, 1e10),
-                'large': (1e10, 1e11), 'mega': (1e11, float('inf'))
-            }
-            lo, hi = mc_ranges.get(filters['market_cap'], (0, float('inf')))
-            if not (lo <= mcap <= hi):
-                continue
-        if 'pe_min' in filters and pe < float(filters['pe_min']):
-            continue
-        if 'pe_max' in filters and pe > float(filters['pe_max']):
-            continue
-        if 'div_min' in filters and div_yield < float(filters['div_min']):
-            continue
-        if 'div_max' in filters and div_yield > float(filters['div_max']):
-            continue
-        if 'beta_min' in filters and beta < float(filters['beta_min']):
-            continue
-        if 'beta_max' in filters and beta > float(filters['beta_max']):
-            continue
-        if 'sector' in filters and filters['sector'] and sector != filters['sector']:
-            continue
-
-        row = {
-            'symbol': ticker,
-            'name': name,
-            'price': round(price, 2),
-            'change': round(change, 2),
-            'changePercent': round(change_pct, 2),
-            'marketCap': mcap,
-            'pe': round(pe, 2) if pe else None,
-            'dividendYield': round(div_yield, 2),
-            'beta': round(beta, 2),
-            'volume': vol,
-            'sector': sector,
-            'exchange': market,
-        }
-
-        # Calculate indicator scores
-        if include_indicators:
-            hist_data = _fetch_stock_data(ticker, '1y', '1d')
-            scoring = _calculate_all_indicators(info, hist_data)
-            row['overallScore'] = scoring['overallScore']
-            row['scoreLabel'] = _score_label(scoring['overallScore'])
-            row['categoryScores'] = scoring['categoryScores']
-            row['indicators'] = scoring['indicators']
-            row['totalIndicators'] = scoring['totalIndicators']
-
-        results.append(row)
-
-    # Sort - support sorting by overallScore
-    reverse = sort_dir == 'desc'
-    if sort_by == 'overallScore':
-        results.sort(key=lambda x: x.get('overallScore', 99) or 99, reverse=not reverse)
+    # Check if results are cached
+    cached_results = _get(cache_key)
+    if cached_results is not None:
+        results = cached_results
     else:
-        results.sort(key=lambda x: x.get(sort_by, 0) or 0, reverse=reverse)
+        # Calculate results (expensive operation)
+        stocks = MARKETS.get(market, MARKETS['PSX'])['stocks']
+        results = []
+
+        for ticker, name in stocks.items():
+            info = _get_stock_info(ticker)
+            price = info.get('currentPrice', 0)
+            prev = info.get('previousClose', price)
+            change = price - prev
+            change_pct = (change / prev * 100) if prev else 0
+            mcap = info.get('marketCap', 0)
+            pe = info.get('trailingPE', 0)
+            div_yield = (info.get('dividendYield') or 0) * 100
+            beta = info.get('beta', 1.0)
+            vol = info.get('volume', 0)
+            sector = info.get('sector', SECTOR_MAP.get(ticker, ''))
+
+            # Apply filters
+            if 'price_min' in filters and price < float(filters['price_min']):
+                continue
+            if 'price_max' in filters and price > float(filters['price_max']):
+                continue
+            if 'market_cap' in filters and filters['market_cap']:
+                # PKR-denominated ranges matching the screener UI labels
+                mc_ranges = {
+                    'mega':  (5e11, float('inf')),  # PKR 500B+
+                    'large': (1e11, 5e11),           # PKR 100B–500B
+                    'mid':   (2.5e10, 1e11),         # PKR 25B–100B
+                    'small': (5e9, 2.5e10),          # PKR 5B–25B
+                    'micro': (0, 5e9),               # <PKR 5B
+                }
+                lo, hi = mc_ranges.get(filters['market_cap'], (0, float('inf')))
+                if not (lo <= mcap <= hi):
+                    continue
+            if 'pe_min' in filters and pe < float(filters['pe_min']):
+                continue
+            if 'pe_max' in filters and pe > float(filters['pe_max']):
+                continue
+            if 'div_min' in filters and div_yield < float(filters['div_min']):
+                continue
+            if 'div_max' in filters and div_yield > float(filters['div_max']):
+                continue
+            if 'beta_min' in filters and beta < float(filters['beta_min']):
+                continue
+            if 'beta_max' in filters and beta > float(filters['beta_max']):
+                continue
+            if 'sector' in filters and filters['sector'] and sector != filters['sector']:
+                continue
+
+            row = {
+                'symbol': ticker,
+                'name': name,
+                'price': round(price, 2),
+                'change': round(change, 2),
+                'changePercent': round(change_pct, 2),
+                'marketCap': mcap,
+                'pe': round(pe, 2) if pe else None,
+                'dividendYield': round(div_yield, 2),
+                'beta': round(beta, 2),
+                'volume': vol,
+                'sector': sector,
+                'exchange': market,
+            }
+
+            # Calculate indicator scores
+            if include_indicators:
+                hist_data = _fetch_stock_data(ticker, '1y', '1d')
+                scoring = _calculate_all_indicators(info, hist_data)
+                row['overallScore'] = scoring['overallScore']
+                row['scoreLabel'] = _score_label(scoring['overallScore'])
+                row['categoryScores'] = scoring['categoryScores']
+                row['indicators'] = scoring['indicators']
+                row['totalIndicators'] = scoring['totalIndicators']
+
+            results.append(row)
+
+        # Sort - support sorting by overallScore
+        reverse = sort_dir == 'desc'
+        if sort_by == 'overallScore':
+            results.sort(key=lambda x: x.get('overallScore', 99) or 99, reverse=not reverse)
+        else:
+            results.sort(key=lambda x: x.get(sort_by, 0) or 0, reverse=reverse)
+
+        # Cache the results for future requests with same filters
+        _set(cache_key, results)
 
     total = len(results)
     start = (page - 1) * per_page
     end = start + per_page
-    return jsonify({
-        'results': results[start:end],
+
+    # Convert NaN/inf to None for JSON serialization
+    response_data = {
+        'results': _convert_nan_to_none(results[start:end]),
         'total': total,
         'page': page,
         'per_page': per_page,
         'pages': (total + per_page - 1) // per_page,
-    })
+    }
+    return jsonify(response_data)
 
 
 @api_bp.route('/market-overview')
@@ -818,13 +872,14 @@ def market_overview():
     gainers = sorted(items, key=lambda x: x['changePercent'], reverse=True)[:10]
     losers = sorted(items, key=lambda x: x['changePercent'])[:10]
     active = sorted(items, key=lambda x: x['volume'], reverse=True)[:10]
-    return jsonify({
+    response_data = {
         'market': market,
-        'gainers': gainers,
-        'losers': losers,
-        'mostActive': active,
+        'gainers': _convert_nan_to_none(gainers),
+        'losers': _convert_nan_to_none(losers),
+        'mostActive': _convert_nan_to_none(active),
         'totalStocks': len(items),
-    })
+    }
+    return jsonify(response_data)
 
 
 @api_bp.route('/technical-indicators')
@@ -966,36 +1021,38 @@ def financials():
 def _generate_income_statement(ticker, base_revenue):
     years = [2024, 2023, 2022, 2021]
     stmts = []
-    rev = base_revenue or random.uniform(1e9, 1e11)
+    rng = random.Random(hash(ticker + 'income') & 0x7FFFFFFF)
+    rev = base_revenue or rng.uniform(1e9, 1e11)
     for yr in years:
-        cogs = rev * random.uniform(0.4, 0.65)
+        cogs = rev * rng.uniform(0.4, 0.65)
         gross = rev - cogs
-        opex = gross * random.uniform(0.3, 0.6)
+        opex = gross * rng.uniform(0.3, 0.6)
         op_income = gross - opex
-        net_income = op_income * random.uniform(0.7, 0.9)
+        net_income = op_income * rng.uniform(0.7, 0.9)
         stmts.append({
             'year': yr, 'revenue': int(rev), 'costOfRevenue': int(cogs),
             'grossProfit': int(gross), 'operatingExpenses': int(opex),
             'operatingIncome': int(op_income), 'netIncome': int(net_income),
         })
-        rev *= random.uniform(0.85, 1.0)
+        rev *= rng.uniform(0.85, 1.0)
     return stmts
 
 
 def _generate_balance_sheet(ticker, mcap):
     years = [2024, 2023, 2022, 2021]
     sheets = []
-    assets = mcap * random.uniform(0.5, 1.5) if mcap else random.uniform(1e9, 1e11)
+    rng = random.Random(hash(ticker + 'balance') & 0x7FFFFFFF)
+    assets = mcap * rng.uniform(0.5, 1.5) if mcap else rng.uniform(1e9, 1e11)
     for yr in years:
-        liabilities = assets * random.uniform(0.3, 0.65)
+        liabilities = assets * rng.uniform(0.3, 0.65)
         equity = assets - liabilities
-        cash = assets * random.uniform(0.05, 0.2)
-        debt = liabilities * random.uniform(0.3, 0.7)
+        cash = assets * rng.uniform(0.05, 0.2)
+        debt = liabilities * rng.uniform(0.3, 0.7)
         sheets.append({
             'year': yr, 'totalAssets': int(assets), 'totalLiabilities': int(liabilities),
             'stockholdersEquity': int(equity), 'cash': int(cash), 'totalDebt': int(debt),
         })
-        assets *= random.uniform(0.9, 1.0)
+        assets *= rng.uniform(0.9, 1.0)
     return sheets
 
 

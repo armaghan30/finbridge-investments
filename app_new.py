@@ -40,6 +40,24 @@ def create_app(config_class=Config):
         from models.user import User, Watchlist
         db.create_all()
 
+    # Pre-warm screener cache in background so first visitor doesn't wait 60s
+    import threading
+    def _prewarm():
+        import time
+        time.sleep(2)  # let Flask fully start
+        try:
+            with app.test_client() as client:
+                client.post(
+                    '/api/screener',
+                    json={'market': 'PSX', 'sort_by': 'marketCap', 'sort_dir': 'desc',
+                          'page': 1, 'per_page': 9999, 'include_indicators': True},
+                    content_type='application/json'
+                )
+        except Exception:
+            pass  # silently ignore if pre-warm fails
+
+    threading.Thread(target=_prewarm, daemon=True).start()
+
     return app
 
 app = create_app()
