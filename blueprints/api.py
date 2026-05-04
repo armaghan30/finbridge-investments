@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -38,15 +38,35 @@ def _convert_nan_to_none(obj):
     elif isinstance(obj, list):
         return [_convert_nan_to_none(v) for v in obj]
     elif isinstance(obj, float):
-        if pd.isna(obj) or np.isinf(obj):
+        import math
+        if math.isnan(obj) or math.isinf(obj):
             return None
         return obj
-    elif isinstance(obj, (np.floating, np.integer)):
-        val = float(obj) if isinstance(obj, np.floating) else int(obj)
-        if isinstance(val, float) and (pd.isna(val) or np.isinf(val)):
+    elif isinstance(obj, np.floating):
+        val = float(obj)
+        import math
+        if math.isnan(val) or math.isinf(val):
             return None
         return val
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, np.ndarray):
+        return _convert_nan_to_none(obj.tolist())
     return obj
+
+def _safe_json_response(data):
+    """Serialize data to JSON response, guaranteed no NaN/Infinity (invalid JSON)."""
+    clean = _convert_nan_to_none(data)
+    # Use standard json.dumps then do a string-level safety net replacement
+    json_str = json.dumps(clean)
+    # Replace any NaN/Infinity that somehow slipped through
+    json_str = (json_str
+                .replace(': NaN', ': null').replace(':NaN', ':null')
+                .replace(': Infinity', ': null').replace(':Infinity', ':null')
+                .replace(': -Infinity', ': null').replace(':-Infinity', ':null'))
+    return Response(json_str, mimetype='application/json')
 
 # ---------- Market Config (PSX Only) ----------
 MARKETS = {
@@ -720,9 +740,9 @@ def _score_label(score):
     """Convert numeric score to risk label."""
     if score is None:
         return 'N/A'
-    if score <= 1.5:
+    if score <= 2.0:
         return 'Low Risk'
-    elif score <= 2.5:
+    elif score <= 2.75:
         return 'Medium Risk'
     elif score <= 3.25:
         return 'Medium-High Risk'
@@ -839,15 +859,14 @@ def screener():
     start = (page - 1) * per_page
     end = start + per_page
 
-    # Convert NaN/inf to None for JSON serialization
     response_data = {
-        'results': _convert_nan_to_none(results[start:end]),
+        'results': results[start:end],
         'total': total,
         'page': page,
         'per_page': per_page,
         'pages': (total + per_page - 1) // per_page,
     }
-    return jsonify(response_data)
+    return _safe_json_response(response_data)
 
 
 @api_bp.route('/market-overview')

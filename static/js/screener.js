@@ -242,12 +242,16 @@ async function loadScreener() {
         const riskEl = document.getElementById('filterRisk');
         const riskFilter = riskEl ? riskEl.value : '';
         if (riskFilter) {
-            const ranges = { low: [0, 1.5], medium: [1.5, 2.5], medhigh: [2.5, 3.25], high: [3.25, 5] };
-            const range = ranges[riskFilter];
-            if (range) {
-                const [lo, hi] = range;
-                // Explicitly exclude null/undefined overallScore stocks when a specific risk filter is active
-                results = results.filter(s => s.overallScore != null && s.overallScore >= lo && s.overallScore < hi);
+            // Match against scoreLabel set by backend — keeps frontend & backend perfectly in sync
+            const labelMap = {
+                low:     'Low Risk',
+                medium:  'Medium Risk',
+                medhigh: 'Medium-High Risk',
+                high:    'High Risk'
+            };
+            const targetLabel = labelMap[riskFilter];
+            if (targetLabel) {
+                results = results.filter(s => s.scoreLabel === targetLabel);
             }
         }
 
