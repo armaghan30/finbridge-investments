@@ -845,6 +845,22 @@ def screener():
 
             results.append(row)
 
+        # Rank-based scoreLabel: always distribute stocks across all 4 risk categories
+        # This prevents all stocks landing in the same category due to tight score ranges
+        scored = [(i, r['overallScore']) for i, r in enumerate(results) if r.get('overallScore') is not None]
+        scored.sort(key=lambda x: x[1])  # sort by score ascending
+        n = len(scored)
+        for rank, (idx, _) in enumerate(scored):
+            pct = rank / n if n > 1 else 0
+            if pct < 0.25:
+                results[idx]['scoreLabel'] = 'Low Risk'
+            elif pct < 0.50:
+                results[idx]['scoreLabel'] = 'Medium Risk'
+            elif pct < 0.75:
+                results[idx]['scoreLabel'] = 'Medium-High Risk'
+            else:
+                results[idx]['scoreLabel'] = 'High Risk'
+
         # Sort - support sorting by overallScore
         reverse = sort_dir == 'desc'
         if sort_by == 'overallScore':
