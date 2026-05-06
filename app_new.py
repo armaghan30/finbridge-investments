@@ -40,11 +40,23 @@ def create_app(config_class=Config):
         from models.user import User, Watchlist
         db.create_all()
 
+    # Start PSX live price service (yfinance-backed, auto-refreshes every 60 s)
+    from psx_live_service import psx_live
+    from fast_data_service import fast_data_service as _fds
+    from blueprints.api import MARKETS
+
+    _all_tickers = list(MARKETS['PSX']['stocks'].keys())
+    _base_prices = {
+        t: _fds.market_data['PSX'].get(t, {}).get('base_price', 100.0)
+        for t in _all_tickers
+    }
+    psx_live.start(_all_tickers, _base_prices)
+
     # Pre-warm screener cache in background so first visitor doesn't wait 60s
     import threading
     def _prewarm():
         import time
-        time.sleep(2)  # let Flask fully start
+        time.sleep(5)  # let Flask + live service start first
         try:
             with app.test_client() as client:
                 client.post(

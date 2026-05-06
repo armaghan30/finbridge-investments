@@ -281,11 +281,11 @@ async function loadScreener() {
         body.innerHTML = pageResults.map((s, i) => {
             const idx = startIdx + i; // index into allResults
             return `
-            <tr class="screener-row" data-idx="${idx}">
+            <tr class="screener-row" data-idx="${idx}" data-ticker="${s.symbol}">
                 <td><a href="/stocks/${s.symbol}" class="stock-link">${s.symbol}</a></td>
                 <td>${s.name}</td>
-                <td class="text-end">${Utils.formatPrice(s.price)}</td>
-                <td class="text-end ${Utils.changeClass(s.changePercent)}">${Utils.changeArrow(s.changePercent)}${Utils.formatPercent(s.changePercent)}</td>
+                <td class="text-end live-price">${Utils.formatPrice(s.price)}</td>
+                <td class="text-end live-change ${Utils.changeClass(s.changePercent)}">${Utils.changeArrow(s.changePercent)}${Utils.formatPercent(s.changePercent)}</td>
                 <td class="text-end">${Utils.formatNumber(s.marketCap)}</td>
                 <td class="text-end">${s.pe || '--'}</td>
                 <td class="text-end">${s.dividendYield ? s.dividendYield + '%' : '--'}</td>

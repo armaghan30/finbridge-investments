@@ -14,12 +14,13 @@ except ImportError:
     talib = None
 
 from fast_data_service import fast_data_service
+from psx_live_service import psx_live
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 # ---------- Cache ----------
 _cache = {}
-CACHE_TTL = 900  # 15 minutes cache for better performance
+CACHE_TTL = 120  # 2-minute cache — live prices refresh every 60 s via psx_live
 
 def _get(key):
     if key in _cache:
@@ -306,12 +307,15 @@ def _get_stock_info(ticker):
     rng = random.Random(hash(ticker) & 0x7FFFFFFF)
     chg = rng.uniform(-5, 5)
 
-    # Use fast_data_service base prices so screener matches chart/detail page
-    fds_entry = fast_data_service.market_data.get('PSX', {}).get(ticker)
-    if fds_entry:
-        base = fds_entry['base_price']
+    # 1. Try live price from psx_live service (yfinance-backed, auto-refreshed)
+    live_entry = psx_live.get_all().get(ticker)
+    if live_entry and live_entry.get('price', 0) > 0:
+        base = live_entry['price']
+        chg  = live_entry.get('change_pct', chg)
     else:
-        base = rng.uniform(20, 800)
+        # 2. Fall back to fast_data_service hardcoded base prices
+        fds_entry = fast_data_service.market_data.get('PSX', {}).get(ticker)
+        base = fds_entry['base_price'] if fds_entry else rng.uniform(20, 800)
 
     demo_info = {
         'symbol': ticker,
@@ -1425,3 +1429,43 @@ def watchlist():
             db.session.delete(item)
             db.session.commit()
         return jsonify({'status': 'ok'})
+
+
+# ---------- Live Prices Endpoint ----------
+@api_bp.route('/live-prices', methods=['GET'])
+def live_prices():
+    """
+    Returns the latest price snapshot for all PSX stocks.
+    Called by the frontend every 30 seconds to update displayed prices.
+
+    Response JSON:
+    {
+      "market_status": "open" | "closed",
+      "last_update":   <unix timestamp or null>,
+      "prices": {
+        "UBL":  {"price": 385.11, "change": 3.20, "change_pct": 0.84, "volume": 4200000},
+        "MCB":  { … },
+        …
+      }
+    }
+    """
+    all_prices = psx_live.get_all()
+    last_ts    = psx_live.get_last_update()
+
+    # Build a clean dict — only tickers that have a real price
+    prices_out = {}
+    for ticker, entry in all_prices.items():
+        p = entry.get('price', 0)
+        if p and p > 0:
+            prices_out[ticker] = {
+                'price':      entry.get('price', 0),
+                'change':     entry.get('change', 0),
+                'change_pct': entry.get('change_pct', 0),
+                'volume':     entry.get('volume', 0),
+            }
+
+    return _safe_json_response({
+        'market_status': psx_live.status,
+        'last_update':   last_ts,
+        'prices':        prices_out,
+    })
