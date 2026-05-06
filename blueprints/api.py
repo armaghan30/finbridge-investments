@@ -68,31 +68,72 @@ def _safe_json_response(data):
                 .replace(': -Infinity', ': null').replace(':-Infinity', ':null'))
     return Response(json_str, mimetype='application/json')
 
-# ---------- Market Config (PSX Only) ----------
+# ---------- Market Config (KSE-100) ----------
 MARKETS = {
     'PSX': {
-        'name': 'Pakistan Stock Exchange',
+        'name': 'Pakistan Stock Exchange (KSE-100)',
         'stocks': {
+            # Oil & Gas
             'OGDC': 'Oil & Gas Development Co.', 'PPL': 'Pakistan Petroleum Ltd.',
-            'MCB': 'Muslim Commercial Bank', 'UBL': 'United Bank Ltd.',
-            'HBL': 'Habib Bank Ltd.', 'LUCK': 'Lucky Cement Ltd.',
-            'ENGRO': 'Engro Corp.', 'FFC': 'Fauji Fertilizer Co.',
-            'EFERT': 'Engro Fertilizers Ltd.', 'ATRL': 'Attock Refinery Ltd.',
             'PSO': 'Pakistan State Oil', 'SHEL': 'Shell Pakistan Ltd.',
+            'ATRL': 'Attock Refinery Ltd.', 'MARI': 'Mari Petroleum Co.',
+            'POL': 'Pakistan Oilfields Ltd.', 'APL': 'Attock Petroleum Ltd.',
+            'SNGP': 'Sui Northern Gas Pipelines', 'SSGC': 'Sui Southern Gas Co.',
+            'NRL': 'National Refinery Ltd.', 'PRL': 'Pakistan Refinery Ltd.',
+            'HASCOL': 'Hascol Petroleum Ltd.', 'CNERGY': 'Cnergyico PK Ltd.',
+            # Banking
+            'MCB': 'Muslim Commercial Bank', 'UBL': 'United Bank Ltd.',
+            'HBL': 'Habib Bank Ltd.', 'MEBL': 'Meezan Bank Ltd.',
+            'BAHL': 'Bank AL Habib Ltd.', 'ABL': 'Allied Bank Ltd.',
+            'BAFL': 'Bank Alfalah Ltd.', 'NBP': 'National Bank of Pakistan',
+            'BOP': 'Bank of Punjab', 'AKBL': 'Askari Bank Ltd.',
+            'FABL': 'Faysal Bank Ltd.', 'JSBL': 'JS Bank Ltd.',
+            'SNBL': 'Soneri Bank Ltd.', 'BOK': 'Bank of Khyber',
+            # Cement
+            'LUCK': 'Lucky Cement Ltd.', 'DGKC': 'D.G. Khan Cement Co.',
+            'DCL': 'Dewan Cement Ltd.', 'PIOC': 'Pioneer Cement Ltd.',
+            'MLCF': 'Maple Leaf Cement', 'FCCL': 'Fauji Cement Co.',
+            'KOHC': 'Kohat Cement Co.', 'CHCC': 'Cherat Cement Co.',
+            'ACPL': 'Attock Cement Ltd.', 'BWCL': 'Bestway Cement Ltd.',
+            'GWLC': 'Gharibwal Cement Ltd.',
+            # Fertilizer
+            'FFC': 'Fauji Fertilizer Co.', 'EFERT': 'Engro Fertilizers Ltd.',
+            'FFBL': 'Fauji Fertilizer Bin Qasim', 'ENGRO': 'Engro Corp.',
+            'FATIMA': 'Fatima Fertilizer Co.',
+            # Power
+            'HUBC': 'Hub Power Co.', 'KEL': 'K-Electric Ltd.',
+            'KAPCO': 'Kot Addu Power Co.', 'NCPL': 'Nishat Chunian Power Ltd.',
+            'PKGP': 'PakGen Power Ltd.', 'TSPL': 'Thal Nova Power Ltd.',
+            'EPQL': 'Engro Powergen Qadirpur Ltd.',
+            # Food & Consumer
             'NESTLE': 'Nestle Pakistan Ltd.', 'UNILEVER': 'Unilever Pakistan Ltd.',
             'COLGATE': 'Colgate Palmolive Pakistan', 'PAKT': 'Pakistan Tobacco Co.',
-            'ICI': 'ICI Pakistan Ltd.', 'FFBL': 'Fauji Fertilizer Bin Qasim',
-            'DCL': 'Dewan Cement Ltd.', 'DGKC': 'D.G. Khan Cement Co.',
-            'HUBC': 'Hub Power Co.', 'KEL': 'K-Electric Ltd.',
-            'MEBL': 'Meezan Bank Ltd.', 'BAHL': 'Bank AL Habib Ltd.',
-            'ABL': 'Allied Bank Ltd.', 'BAFL': 'Bank Alfalah Ltd.',
-            'MARI': 'Mari Petroleum Co.', 'POL': 'Pakistan Oilfields Ltd.',
-            'PIOC': 'Pioneer Cement Ltd.', 'MLCF': 'Maple Leaf Cement',
-            'FCCL': 'Fauji Cement Co.', 'KOHC': 'Kohat Cement Co.',
+            'QUICE': 'Quice Food Industries Ltd.', 'FFL': 'Fauji Foods Ltd.',
+            'NATF': 'National Foods Ltd.',
+            # Chemicals & Industrials
+            'ICI': 'ICI Pakistan Ltd.', 'GATM': 'Gatron Industries Ltd.',
+            'LOTTE': 'Lotte Chemical Pakistan', 'INIL': 'International Industries Ltd.',
+            'CEPB': 'Crescent Steel & Allied Products',
+            # Automobile
             'INDU': 'Indus Motor Co.', 'PSMC': 'Pak Suzuki Motor Co.',
             'MTL': 'Millat Tractors Ltd.', 'AGTL': 'Al-Ghazi Tractors Ltd.',
+            'HCAR': 'Honda Atlas Cars Pakistan', 'GHNI': 'Ghandhara Industries Ltd.',
+            # Pharmaceuticals
             'SEARL': 'Searle Company Ltd.', 'GLAXO': 'GlaxoSmithKline Pakistan',
-            'AGP': 'AGP Ltd.', 'GATM': 'Gatron Industries Ltd.',
+            'AGP': 'AGP Ltd.', 'FEROZ': 'Ferozsons Laboratories Ltd.',
+            'HINOON': 'Hinopak Motors Ltd.',
+            # Technology
+            'TRG': 'TRG Pakistan Ltd.', 'NETSOL': 'NetSol Technologies Ltd.',
+            'SYS': 'Systems Ltd.', 'TELE': 'Telecard Ltd.',
+            # Steel
+            'ASTL': 'Amreli Steels Ltd.', 'ISL': 'International Steels Ltd.',
+            'MUGHAL': 'Mughal Iron & Steel Industries',
+            # Textile
+            'NML': 'Nishat Mills Ltd.', 'NCL': 'Nishat Chunian Ltd.',
+            'KTML': 'Kohinoor Textile Mills Ltd.',
+            # Glass & Miscellaneous
+            'TGL': 'Tariq Glass Industries Ltd.',
+            'JSCL': 'Jahangir Siddiqui & Co. Ltd.',
         }
     }
 }
@@ -101,25 +142,44 @@ SECTOR_MAP = {
     # Oil & Gas
     'OGDC': 'Oil & Gas', 'PPL': 'Oil & Gas', 'PSO': 'Oil & Gas',
     'SHEL': 'Oil & Gas', 'ATRL': 'Oil & Gas', 'MARI': 'Oil & Gas', 'POL': 'Oil & Gas',
+    'APL': 'Oil & Gas', 'SNGP': 'Oil & Gas', 'SSGC': 'Oil & Gas',
+    'NRL': 'Oil & Gas', 'PRL': 'Oil & Gas', 'HASCOL': 'Oil & Gas', 'CNERGY': 'Oil & Gas',
     # Banking
     'MCB': 'Banking', 'UBL': 'Banking', 'HBL': 'Banking',
     'MEBL': 'Banking', 'BAHL': 'Banking', 'ABL': 'Banking', 'BAFL': 'Banking',
+    'NBP': 'Banking', 'BOP': 'Banking', 'AKBL': 'Banking',
+    'FABL': 'Banking', 'JSBL': 'Banking', 'SNBL': 'Banking', 'BOK': 'Banking',
     # Cement
     'LUCK': 'Cement', 'DGKC': 'Cement', 'DCL': 'Cement',
     'PIOC': 'Cement', 'MLCF': 'Cement', 'FCCL': 'Cement', 'KOHC': 'Cement',
+    'CHCC': 'Cement', 'ACPL': 'Cement', 'BWCL': 'Cement', 'GWLC': 'Cement',
     # Fertilizer
-    'FFC': 'Fertilizer', 'EFERT': 'Fertilizer', 'FFBL': 'Fertilizer', 'ENGRO': 'Fertilizer',
+    'FFC': 'Fertilizer', 'EFERT': 'Fertilizer', 'FFBL': 'Fertilizer',
+    'ENGRO': 'Fertilizer', 'FATIMA': 'Fertilizer',
     # Power
-    'HUBC': 'Power', 'KEL': 'Power',
+    'HUBC': 'Power', 'KEL': 'Power', 'KAPCO': 'Power',
+    'NCPL': 'Power', 'PKGP': 'Power', 'TSPL': 'Power', 'EPQL': 'Power',
     # Food & Consumer
     'NESTLE': 'Food & Consumer', 'UNILEVER': 'Food & Consumer',
     'COLGATE': 'Food & Consumer', 'PAKT': 'Food & Consumer',
+    'QUICE': 'Food & Consumer', 'FFL': 'Food & Consumer', 'NATF': 'Food & Consumer',
     # Chemicals
-    'ICI': 'Chemicals', 'GATM': 'Chemicals',
+    'ICI': 'Chemicals', 'GATM': 'Chemicals', 'LOTTE': 'Chemicals',
+    'INIL': 'Chemicals', 'CEPB': 'Chemicals',
     # Automobile
-    'INDU': 'Automobile', 'PSMC': 'Automobile', 'MTL': 'Automobile', 'AGTL': 'Automobile',
+    'INDU': 'Automobile', 'PSMC': 'Automobile', 'MTL': 'Automobile',
+    'AGTL': 'Automobile', 'HCAR': 'Automobile', 'GHNI': 'Automobile',
     # Pharmaceuticals
     'SEARL': 'Pharmaceuticals', 'GLAXO': 'Pharmaceuticals', 'AGP': 'Pharmaceuticals',
+    'FEROZ': 'Pharmaceuticals', 'HINOON': 'Pharmaceuticals',
+    # Technology
+    'TRG': 'Technology', 'NETSOL': 'Technology', 'SYS': 'Technology', 'TELE': 'Technology',
+    # Steel
+    'ASTL': 'Steel', 'ISL': 'Steel', 'MUGHAL': 'Steel',
+    # Textile
+    'NML': 'Textile', 'NCL': 'Textile', 'KTML': 'Textile',
+    # Miscellaneous
+    'TGL': 'Glass & Allied', 'JSCL': 'Investment',
 }
 
 # ---------- PSX Ticker Resolution ----------
@@ -219,8 +279,15 @@ def _get_stock_info(ticker):
     market = _find_market(ticker)
     name = _all_tickers().get(ticker, ticker)
     rng = random.Random(hash(ticker) & 0x7FFFFFFF)
-    base = rng.uniform(20, 800)
     chg = rng.uniform(-5, 5)
+
+    # Use fast_data_service base prices so screener matches chart/detail page
+    fds_entry = fast_data_service.market_data.get('PSX', {}).get(ticker)
+    if fds_entry:
+        base = fds_entry['base_price']
+    else:
+        base = rng.uniform(20, 800)
+
     demo_info = {
         'symbol': ticker,
         'shortName': name,

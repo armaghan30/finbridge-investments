@@ -53,6 +53,65 @@ class FastDataService:
                 'GLAXO': {'base_price': 180.0, 'volatility': 0.018, 'trend': 0.001},
                 'AGP': {'base_price': 95.0, 'volatility': 0.025, 'trend': 0.001},
                 'GATM': {'base_price': 420.0, 'volatility': 0.022, 'trend': 0.001},
+                # KSE-100 Additional Oil & Gas
+                'APL': {'base_price': 380.0, 'volatility': 0.022, 'trend': 0.001},
+                'SNGP': {'base_price': 65.0, 'volatility': 0.025, 'trend': 0.001},
+                'SSGC': {'base_price': 25.0, 'volatility': 0.028, 'trend': 0.001},
+                'NRL': {'base_price': 480.0, 'volatility': 0.02, 'trend': 0.001},
+                'PRL': {'base_price': 32.0, 'volatility': 0.03, 'trend': 0.001},
+                'HASCOL': {'base_price': 15.0, 'volatility': 0.04, 'trend': 0.001},
+                'CNERGY': {'base_price': 12.0, 'volatility': 0.045, 'trend': 0.001},
+                # KSE-100 Additional Banking
+                'NBP': {'base_price': 45.0, 'volatility': 0.022, 'trend': 0.001},
+                'BOP': {'base_price': 12.0, 'volatility': 0.03, 'trend': 0.001},
+                'AKBL': {'base_price': 28.0, 'volatility': 0.025, 'trend': 0.001},
+                'FABL': {'base_price': 35.0, 'volatility': 0.022, 'trend': 0.001},
+                'JSBL': {'base_price': 9.0, 'volatility': 0.035, 'trend': 0.001},
+                'SNBL': {'base_price': 18.0, 'volatility': 0.028, 'trend': 0.001},
+                'BOK': {'base_price': 22.0, 'volatility': 0.025, 'trend': 0.001},
+                # KSE-100 Additional Cement
+                'CHCC': {'base_price': 340.0, 'volatility': 0.025, 'trend': 0.001},
+                'ACPL': {'base_price': 280.0, 'volatility': 0.022, 'trend': 0.001},
+                'BWCL': {'base_price': 120.0, 'volatility': 0.028, 'trend': 0.001},
+                'GWLC': {'base_price': 45.0, 'volatility': 0.032, 'trend': 0.001},
+                # KSE-100 Additional Fertilizer
+                'FATIMA': {'base_price': 38.0, 'volatility': 0.025, 'trend': 0.001},
+                # KSE-100 Additional Power
+                'KAPCO': {'base_price': 55.0, 'volatility': 0.022, 'trend': 0.001},
+                'NCPL': {'base_price': 25.0, 'volatility': 0.028, 'trend': 0.001},
+                'PKGP': {'base_price': 18.0, 'volatility': 0.03, 'trend': 0.001},
+                'TSPL': {'base_price': 42.0, 'volatility': 0.025, 'trend': 0.001},
+                'EPQL': {'base_price': 45.0, 'volatility': 0.022, 'trend': 0.001},
+                # KSE-100 Food & Consumer
+                'QUICE': {'base_price': 85.0, 'volatility': 0.025, 'trend': 0.001},
+                'FFL': {'base_price': 22.0, 'volatility': 0.035, 'trend': 0.001},
+                'NATF': {'base_price': 550.0, 'volatility': 0.018, 'trend': 0.001},
+                # KSE-100 Chemicals
+                'LOTTE': {'base_price': 38.0, 'volatility': 0.028, 'trend': 0.001},
+                'INIL': {'base_price': 185.0, 'volatility': 0.022, 'trend': 0.001},
+                'CEPB': {'base_price': 155.0, 'volatility': 0.025, 'trend': 0.001},
+                # KSE-100 Automobile
+                'HCAR': {'base_price': 420.0, 'volatility': 0.022, 'trend': 0.001},
+                'GHNI': {'base_price': 320.0, 'volatility': 0.025, 'trend': 0.001},
+                # KSE-100 Pharmaceuticals
+                'FEROZ': {'base_price': 290.0, 'volatility': 0.02, 'trend': 0.001},
+                'HINOON': {'base_price': 145.0, 'volatility': 0.022, 'trend': 0.001},
+                # KSE-100 Technology
+                'TRG': {'base_price': 88.0, 'volatility': 0.03, 'trend': 0.002},
+                'NETSOL': {'base_price': 145.0, 'volatility': 0.028, 'trend': 0.002},
+                'SYS': {'base_price': 680.0, 'volatility': 0.025, 'trend': 0.002},
+                'TELE': {'base_price': 8.0, 'volatility': 0.04, 'trend': 0.001},
+                # KSE-100 Steel
+                'ASTL': {'base_price': 85.0, 'volatility': 0.028, 'trend': 0.001},
+                'ISL': {'base_price': 150.0, 'volatility': 0.025, 'trend': 0.001},
+                'MUGHAL': {'base_price': 120.0, 'volatility': 0.027, 'trend': 0.001},
+                # KSE-100 Textile
+                'NML': {'base_price': 85.0, 'volatility': 0.022, 'trend': 0.001},
+                'NCL': {'base_price': 65.0, 'volatility': 0.025, 'trend': 0.001},
+                'KTML': {'base_price': 35.0, 'volatility': 0.03, 'trend': 0.001},
+                # Miscellaneous
+                'TGL': {'base_price': 95.0, 'volatility': 0.025, 'trend': 0.001},
+                'JSCL': {'base_price': 35.0, 'volatility': 0.03, 'trend': 0.001},
             }
         }
 
