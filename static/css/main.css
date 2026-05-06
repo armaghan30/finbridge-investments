@@ -1850,3 +1850,18 @@ main { animation: pageIn 0.4s ease-out; }
         width: 100%;
     }
 }
+
+/* ── Stock letter-avatar ── */
+.stock-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    letter-spacing: 0;
+}

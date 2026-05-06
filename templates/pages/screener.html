@@ -31,12 +31,13 @@
     <div class="card filter-card mb-3">
         <div class="card-body">
             <div class="row g-3">
-                <!-- Market (PSX only) -->
+                <!-- Stock Search -->
                 <div class="col-md-2">
-                    <label class="form-label fw-semibold">Market</label>
-                    <select id="filterMarket" class="form-select" disabled>
-                        <option value="PSX" selected>PSX</option>
-                    </select>
+                    <label class="form-label fw-semibold">Search Stock</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="filterSearch" class="form-control" placeholder="e.g. UBL, MCB…">
+                    </div>
                 </div>
 
                 <!-- Sector -->

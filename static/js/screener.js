@@ -2,7 +2,25 @@
 
 let currentSort = { by: 'marketCap', dir: 'desc' };
 let currentPage = 1;
-let allResults = []; // store for modal lookups
+let allResults   = []; // all results after API fetch (pre-client-filters)
+let _rawResults  = []; // raw unfiltered API results — kept for re-filtering on search
+
+// Colour palette for stock letter-avatars (cycles by index)
+const AVATAR_COLORS = [
+    '#1a73e8','#e53935','#43a047','#f4511e','#8e24aa',
+    '#00897b','#d81b60','#fb8c00','#039be5','#546e7a',
+    '#6d4c41','#00acc1','#7cb342','#fdd835','#5e35b1',
+];
+function _avatarColor(sym) {
+    let h = 0;
+    for (let i = 0; i < sym.length; i++) h = (h * 31 + sym.charCodeAt(i)) & 0xffff;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function _avatarHTML(sym) {
+    const c = _avatarColor(sym);
+    const letter = sym.charAt(0).toUpperCase();
+    return `<span class="stock-avatar" style="background:${c}">${letter}</span>`;
+}
 
 const CATEGORY_ORDER = [
     'Basic', 'Performance', 'Valuation', 'Risk Indicators',
@@ -58,6 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('applyFilters').addEventListener('click', () => { currentPage = 1; loadScreener(); });
     document.getElementById('resetFilters').addEventListener('click', resetFilters);
+
+    // Live stock search — filter visible rows by ticker or company name
+    const searchBox = document.getElementById('filterSearch');
+    if (searchBox) {
+        searchBox.addEventListener('input', () => {
+            currentPage = 1;
+            renderTable(getFilteredResults());
+        });
+    }
     document.getElementById('clearAdvancedFilters').addEventListener('click', clearAdvancedFilters);
 
     // Sortable headers
@@ -215,6 +242,99 @@ function scoreLabel(score) {
     return 'High Risk';
 }
 
+// Returns a filtered copy of _rawResults applying all client-side filters
+function getFilteredResults() {
+    let results = _rawResults.slice();
+
+    // 1. Search box — filter by ticker or company name
+    const searchVal = (document.getElementById('filterSearch')?.value || '').trim().toLowerCase();
+    if (searchVal) {
+        results = results.filter(s =>
+            s.symbol.toLowerCase().includes(searchVal) ||
+            (s.name  || '').toLowerCase().includes(searchVal)
+        );
+    }
+
+    // 2. Risk level filter
+    const riskFilter = document.getElementById('filterRisk')?.value || '';
+    if (riskFilter) {
+        const labelMap = {
+            low: 'Low Risk', medium: 'Medium Risk',
+            medhigh: 'Medium-High Risk', high: 'High Risk'
+        };
+        const target = labelMap[riskFilter];
+        if (target) results = results.filter(s => s.scoreLabel === target);
+    }
+
+    // 3. Advanced indicator filters
+    results = applyAdvancedFilters(results, getAdvancedFilters());
+
+    return results;
+}
+
+// Render a given results array into the screener table (with pagination)
+function renderTable(results) {
+    const body = document.getElementById('screenerBody');
+
+    if (results.length === 0) {
+        body.innerHTML = '<tr><td colspan="11" class="text-center py-5 text-muted"><i class="fas fa-search me-2"></i>No stocks match your criteria. Try adjusting the filters.</td></tr>';
+        document.getElementById('resultCount').textContent = '0 results';
+        document.getElementById('paginationInfo').textContent = '';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+    }
+
+    allResults = results;  // keep global in sync for modal lookups
+
+    const perPage = 25;
+    const total      = results.length;
+    const totalPages = Math.ceil(total / perPage);
+    if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+    const startIdx   = (currentPage - 1) * perPage;
+    const endIdx     = Math.min(currentPage * perPage, total);
+    const pageResults = results.slice(startIdx, endIdx);
+
+    body.innerHTML = pageResults.map((s, i) => {
+        const idx = startIdx + i;
+        return `
+        <tr class="screener-row" data-idx="${idx}" data-ticker="${s.symbol}">
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    ${_avatarHTML(s.symbol)}
+                    <a href="/stocks/${s.symbol}" class="stock-link fw-semibold">${s.symbol}</a>
+                </div>
+            </td>
+            <td class="text-muted small">${s.name}</td>
+            <td class="text-end live-price fw-semibold">${Utils.formatPrice(s.price)}</td>
+            <td class="text-end live-change ${Utils.changeClass(s.changePercent)}">${Utils.changeArrow(s.changePercent)}${Utils.formatPercent(s.changePercent)}</td>
+            <td class="text-end">${Utils.formatNumber(s.marketCap)}</td>
+            <td class="text-end">${s.pe || '--'}</td>
+            <td class="text-end">${s.dividendYield ? s.dividendYield + '%' : '--'}</td>
+            <td class="text-end">${s.beta || '--'}</td>
+            <td class="text-center">${scoreBadgeHTML(s.overallScore, s.scoreLabel)}</td>
+            <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${s.sector || '--'}</span></td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary view-indicators-btn" data-idx="${idx}" title="View all indicators">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('resultCount').textContent = `${total} stock${total !== 1 ? 's' : ''} found`;
+    document.getElementById('paginationInfo').textContent =
+        `Showing ${total === 0 ? 0 : startIdx + 1}–${endIdx} of ${total}`;
+
+    renderPagination(currentPage, totalPages);
+
+    document.querySelectorAll('.view-indicators-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            showIndicatorModal(allResults[parseInt(btn.dataset.idx)]);
+        });
+    });
+}
+
 async function loadScreener() {
     const body = document.getElementById('screenerBody');
     body.innerHTML = '<tr><td colspan="11" class="text-center py-5"><div class="spinner-border spinner-border-sm"></div> Screening & scoring stocks...</td></tr>';
@@ -237,85 +357,9 @@ async function loadScreener() {
             return;
         }
 
-        // Client-side risk level filter (read directly from DOM, not from API filters)
-        let results = res.results;
-        const riskEl = document.getElementById('filterRisk');
-        const riskFilter = riskEl ? riskEl.value : '';
-        if (riskFilter) {
-            // Match against scoreLabel set by backend — keeps frontend & backend perfectly in sync
-            const labelMap = {
-                low:     'Low Risk',
-                medium:  'Medium Risk',
-                medhigh: 'Medium-High Risk',
-                high:    'High Risk'
-            };
-            const targetLabel = labelMap[riskFilter];
-            if (targetLabel) {
-                results = results.filter(s => s.scoreLabel === targetLabel);
-            }
-        }
-
-        // Apply advanced indicator filters (client-side)
-        results = applyAdvancedFilters(results, advFilters);
-
-        if (results.length === 0) {
-            body.innerHTML = '<tr><td colspan="11" class="text-center py-5 text-muted">No stocks match your indicator criteria. Try adjusting advanced filters.</td></tr>';
-            document.getElementById('resultCount').textContent = '0 results';
-            document.getElementById('paginationInfo').textContent = '';
-            document.getElementById('pagination').innerHTML = '';
-            return;
-        }
-
-        allResults = results;
-
-        // Client-side pagination
-        const perPage = 25;
-        const total = results.length;
-        const totalPages = Math.ceil(total / perPage);
-        // Clamp currentPage in case filtering reduced the total
-        if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
-        const startIdx = (currentPage - 1) * perPage;
-        const endIdx = Math.min(currentPage * perPage, total);
-        const pageResults = results.slice(startIdx, endIdx);
-
-        body.innerHTML = pageResults.map((s, i) => {
-            const idx = startIdx + i; // index into allResults
-            return `
-            <tr class="screener-row" data-idx="${idx}" data-ticker="${s.symbol}">
-                <td><a href="/stocks/${s.symbol}" class="stock-link">${s.symbol}</a></td>
-                <td>${s.name}</td>
-                <td class="text-end live-price">${Utils.formatPrice(s.price)}</td>
-                <td class="text-end live-change ${Utils.changeClass(s.changePercent)}">${Utils.changeArrow(s.changePercent)}${Utils.formatPercent(s.changePercent)}</td>
-                <td class="text-end">${Utils.formatNumber(s.marketCap)}</td>
-                <td class="text-end">${s.pe || '--'}</td>
-                <td class="text-end">${s.dividendYield ? s.dividendYield + '%' : '--'}</td>
-                <td class="text-end">${s.beta || '--'}</td>
-                <td class="text-center">${scoreBadgeHTML(s.overallScore, s.scoreLabel)}</td>
-                <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${s.sector || '--'}</span></td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-primary view-indicators-btn" data-idx="${idx}" title="View all indicators">
-                        <i class="fas fa-chart-bar"></i>
-                    </button>
-                </td>
-            </tr>`;
-        }).join('');
-
-        document.getElementById('resultCount').textContent = `${total} stocks found`;
-
-        const displayStart = total === 0 ? 0 : startIdx + 1;
-        document.getElementById('paginationInfo').textContent = `Showing ${displayStart}–${endIdx} of ${total}`;
-
-        // Pagination buttons
-        renderPagination(currentPage, totalPages);
-
-        // Attach indicator button listeners
-        document.querySelectorAll('.view-indicators-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const idx = parseInt(btn.dataset.idx);
-                showIndicatorModal(allResults[idx]);
-            });
-        });
+        // Store raw results for re-filtering (search box, risk, advanced)
+        _rawResults = res.results;
+        renderTable(getFilteredResults());
 
     } catch (err) {
         body.innerHTML = '<tr><td colspan="11" class="text-center py-5 text-danger">Error loading data. Please try again.</td></tr>';
@@ -454,6 +498,7 @@ function clearAdvancedFilters() {
 function resetFilters() {
     // Basic filters
     if (document.getElementById('filterMarket')) document.getElementById('filterMarket').value = 'PSX';
+    document.getElementById('filterSearch').value = '';
     document.getElementById('filterSector').value = '';
     document.getElementById('filterMarketCap').value = '';
     document.getElementById('filterRisk').value = '';
