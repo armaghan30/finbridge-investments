@@ -134,6 +134,21 @@ MARKETS = {
             # Glass & Miscellaneous
             'TGL': 'Tariq Glass Industries Ltd.',
             'JSCL': 'Jahangir Siddiqui & Co. Ltd.',
+            # Additional KSE-100 to reach 100
+            'EPCL': 'Engro Polymer & Chemicals Ltd.',
+            'TREET': 'Treet Corporation Ltd.',
+            'PNSC': 'Pakistan National Shipping Corp.',
+            'WTL': 'WorldCall Telecom Ltd.',
+            'JVDC': 'Javedan Corporation Ltd.',
+            'SRVI': 'Services Industries Ltd.',
+            'THCCL': 'Thatta Cement Co. Ltd.',
+            'SITC': 'Sitara Chemical Industries Ltd.',
+            'LOADS': 'Loads Ltd.',
+            'ISML': 'Ismail Industries Ltd.',
+            'SAPM': 'Saif Power Ltd.',
+            'PKGS': 'Packages Ltd.',
+            'SING': 'Singer Pakistan Ltd.',
+            'GATI': 'Ghani Gases Ltd.',
         }
     }
 }
@@ -178,8 +193,18 @@ SECTOR_MAP = {
     'ASTL': 'Steel', 'ISL': 'Steel', 'MUGHAL': 'Steel',
     # Textile
     'NML': 'Textile', 'NCL': 'Textile', 'KTML': 'Textile',
-    # Miscellaneous
+    # Miscellaneous / Glass
     'TGL': 'Glass & Allied', 'JSCL': 'Investment',
+    'GATI': 'Glass & Allied',
+    # Additional 14
+    'EPCL': 'Chemicals', 'SITC': 'Chemicals', 'PKGS': 'Chemicals',
+    'TREET': 'Food & Consumer', 'SING': 'Food & Consumer', 'ISML': 'Food & Consumer',
+    'PNSC': 'Transport', 'SAPM': 'Power',
+    'WTL': 'Technology',
+    'JVDC': 'Real Estate',
+    'SRVI': 'Textile',
+    'THCCL': 'Cement',
+    'LOADS': 'Automobile',
 }
 
 # ---------- PSX Ticker Resolution ----------

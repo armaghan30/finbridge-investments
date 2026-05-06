@@ -112,6 +112,21 @@ class FastDataService:
                 # Miscellaneous
                 'TGL': {'base_price': 95.0, 'volatility': 0.025, 'trend': 0.001},
                 'JSCL': {'base_price': 35.0, 'volatility': 0.03, 'trend': 0.001},
+                # KSE-100 Additional (final 14 to reach 100)
+                'EPCL': {'base_price': 45.0, 'volatility': 0.025, 'trend': 0.001},
+                'TREET': {'base_price': 32.0, 'volatility': 0.028, 'trend': 0.001},
+                'PNSC': {'base_price': 95.0, 'volatility': 0.022, 'trend': 0.001},
+                'WTL': {'base_price': 3.5, 'volatility': 0.045, 'trend': 0.001},
+                'JVDC': {'base_price': 28.0, 'volatility': 0.03, 'trend': 0.001},
+                'SRVI': {'base_price': 450.0, 'volatility': 0.02, 'trend': 0.001},
+                'THCCL': {'base_price': 55.0, 'volatility': 0.03, 'trend': 0.001},
+                'SITC': {'base_price': 385.0, 'volatility': 0.022, 'trend': 0.001},
+                'LOADS': {'base_price': 55.0, 'volatility': 0.028, 'trend': 0.001},
+                'ISML': {'base_price': 750.0, 'volatility': 0.018, 'trend': 0.001},
+                'SAPM': {'base_price': 12.0, 'volatility': 0.035, 'trend': 0.001},
+                'PKGS': {'base_price': 320.0, 'volatility': 0.02, 'trend': 0.001},
+                'SING': {'base_price': 28.0, 'volatility': 0.03, 'trend': 0.001},
+                'GATI': {'base_price': 45.0, 'volatility': 0.028, 'trend': 0.001},
             }
         }
 
